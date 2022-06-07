@@ -8,3 +8,7 @@ Run tests
 # please run in backend/server directory
 
 python manage.py test apps.ml.tests
+
+Run all tests
+
+python manage.py test apps
