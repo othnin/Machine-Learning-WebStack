@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang=""><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Piotr Płoński">
+  <title>Deploy Machine Learning Models with Django</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="Deploy%20Machine%20Learning%20Models%20with%20Django_files/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Deploy Machine Learning Models with Django</h1>
+<p class="subtitle">Version 1.0 (04/11/2019)</p>
+<p class="author">Piotr Płoński</p>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a><ul>
+<li><a href="#convert-python-notebook-to-web-app">Convert Python Notebook to web app</a></li>
+<li><a href="#django-and-react-tutorials">Django and React Tutorials</a></li>
+</ul></li>
+<li><a href="#start">Start</a><ul>
+<li><a href="#setup-git-repository">Setup git repository</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#start-django-project">Start Django project</a></li>
+</ul></li>
+<li><a href="#build-ml-algorithms">Build ML algorithms</a><ul>
+<li><a href="#setup-jupyter-notebook">Setup Jupyter notebook</a></li>
+<li><a href="#train-ml-algorithms">Train ML algorithms</a></li>
+</ul></li>
+<li><a href="#django-models">Django models</a><ul>
+<li><a href="#create-django-models">Create Django models</a></li>
+<li><a href="#create-rest-api-for-models">Create REST API for models</a></li>
+</ul></li>
+<li><a href="#add-ml-algorithms-to-the-server-code">Add ML algorithms to the server code</a><ul>
+<li><a href="#ml-code-in-the-server">ML code in the server</a></li>
+<li><a href="#algorithms-registry">Algorithms registry</a></li>
+<li><a href="#add-ml-algorithms-to-the-registry">Add ML algorithms to the registry</a></li>
+</ul></li>
+<li><a href="#making-predictions">Making predictions</a><ul>
+<li><a href="#predictions-view">Predictions view</a></li>
+<li><a href="#add-tests-for-predictview">Add tests for PredictView</a></li>
+</ul></li>
+<li><a href="#ab-testing">A/B testing</a><ul>
+<li><a href="#add-second-ml-algorithm">Add second ML algorithm</a></li>
+<li><a href="#create-ab-model-in-the-database">Create A/B model in the database</a></li>
+</ul></li>
+<li><a href="#containers">Containers</a><ul>
+<li><a href="#prepare-the-code">Prepare the code</a></li>
+<li><a href="#dockerfiles">Dockerfiles</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="introduction">Introduction</h1>
+<p>The demand for Machine Learning (ML) applications is growing. Many 
+resources show how to train ML algorithms. However, the ML algorithms 
+work in two phases:</p>
+<ul>
+<li><em>the training phase</em> - in which the ML algorithm is trained based on historical data,</li>
+<li><em>the inference phase</em> - the ML algorithm is used for computing predictions on new data with unknown outcomes.</li>
+</ul>
+<p>The benefits for business are in the inference phase when ML 
+algorithms provide information before it is known. There is a 
+technological challenge on how to provide ML algorithms for inference 
+into production systems. There are many requirements which need to be 
+fulfilled:</p>
+<ul>
+<li>ML algorithms deployment automation,</li>
+<li>continuous-integration,</li>
+<li>reproducibility of algorithms and predictions,</li>
+<li>diagnostic and monitoring of algorithms in production,</li>
+<li>governance and regulatory compliance,</li>
+<li>scalability,</li>
+<li>users collaboration.</li>
+</ul>
+<p>There are many ways of how ML algorithms can be used:</p>
+<ul>
+<li>The simplest approach is to run the ML algorithm locally to compute 
+predictions on prepared test data and share predictions with others. 
+This approach is easy and fast in implementation. However, it has many 
+drawbacks. It is hard to govern, monitor, scale and collaborate.</li>
+<li>The second, similar approach, is to hard-code the ML algorithm in 
+the system’s code. This solution is rather for simple ML algorithms, 
+like Decision Trees or Linear Regression (which are easy to implement 
+independently of the programming language). This solution behaves 
+similar to the first approach - it is easy to implement with many 
+drawbacks.</li>
+<li>The third solution, it to make the ML algorithm available by REST 
+API, RPC or WebSockets. This method requires the implementation of the 
+server which handles requests and forwards them to ML algorithms. In 
+this approach, all requirements for the ML production system can be 
+fulfilled.</li>
+<li>The last solution is to use a commercial vendor for deploying ML 
+algorithms - it can be in the cloud or on-premise. Sometimes, this can 
+be a good solution. When you have a standard ML algorithm so the vendor 
+can handle it and you have money to pay to the vendor (it can be pricy).</li>
+</ul>
+<p>This tutorial provides code examples on how to build your ML system 
+available with REST API. In this book, for building the ML service I 
+will use Python 3.6 and Django 2.2.4. This book is the first part that 
+covers the basics which should be enough to build your ML system which:</p>
+<ul>
+<li>can handle many API endpoints,</li>
+<li>each API endpoint can have several ML algorithms with different versions,</li>
+<li>ML code and artifacts (files with ML parameters) are stored in the code repository (git),</li>
+<li>supports fast deployments and continuous integration (tests for both: server and ML code),</li>
+<li>supports monitoring and algorithm diagnostic (support A/B tests),</li>
+<li>is scalable (deployed with containers),</li>
+<li>has a user interface.</li>
+</ul>
+<p>There are many ways in which this tutorial can be extended, for example:</p>
+<ul>
+<li>running long jobs for batch predictions or algorithm training with Celery,</li>
+<li>running scheduled jobs with Celery,</li>
+<li>WebSocket interface for Internet-of-Things applications (with Django Channels),</li>
+<li>authentication and user management.</li>
+</ul>
+<p>Right now, the above topics are not covered in this tutorial. I will 
+consider writing them in the future based on the reader’s feedback. You 
+can send me feedback using this <a href="https://docs.google.com/forms/d/e/1FAIpQLSfdc8xWZKnIBZojw69rPR2ItKPwU-14-n_-ZNNh-A_kHDmg2A/viewform?usp=sf_link">form</a>.</p>
+<p>In my opinion, building your ML system has a great advantage - it is 
+tailored to your needs. It has all features that are needed in your ML 
+system and can be as complex as you wish.</p>
+<p>This tutorial is for readers who are familiar with ML and would like 
+to learn how to build ML web services. Basic Python knowledge is 
+required. The full code of this tutorial is available at: <a href="https://github.com/pplonski/my_ml_service">https://github.com/pplonski/my_ml_service</a>.</p>
+<h2 id="convert-python-notebook-to-web-app">Convert Python Notebook to web app</h2>
+<p>In 2022, I’ve published an open-source framework called <a href="https://github.com/mljar/mercury">Mercury</a>
+ for quick converting Python notebooks into web apps. It adds 
+interactive widgets to the notebook based on the YAML configuration 
+(from the first cell). The end-user can tweak widgets parameters and 
+execute the notebook. You can read more about Mercury on my company <a href="https://mljar.com/mercury">website</a>.</p>
+<h2 id="django-and-react-tutorials">Django and React Tutorials</h2>
+<p>I started to work on Django and React tutorials on how to build your 
+own Software-as-a-Service (SaaS) application from scratch. The tutorials
+ are available at <a href="https://saasitive.com/">https://saasitive.com</a>.</p>
+<hr>
+<h1 id="start">Start</h1>
+<p>What you will learn in this chapter:</p>
+<ul>
+<li>how to set up a git repository,</li>
+<li>setup environment for development (I will use Ubuntu 16.04),</li>
+<li>install required packages,</li>
+<li>start the Django project.</li>
+</ul>
+<h2 id="setup-git-repository">Setup git repository</h2>
+<p>To set up a git repository I use <a href="https://github.com/">GitHub</a> (it is free for public and private projects). If you have an account there please go to <a href="https://github.com/new">https://github.com/new</a> and set the repository, like in the image (<a href="#fig:1">1</a>).</p>
+<div id="fig:1" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/02_setup_github.png" alt="Figure&nbsp;1: Setup a new project in github"><figcaption><span>Figure&nbsp;1:</span> Setup a new project in github</figcaption>
+</figure>
+</div>
+<p>The full code of this tutorial is available at: <a href="https://github.com/pplonski/my_ml_service">https://github.com/pplonski/my_ml_service</a>.</p>
+<p>Then please go to your terminal and set the repository:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb1-1" title="1"><span class="fu">git</span> clone https://github.com/pplonski/my_ml_service.git</a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="bu">cd</span> my_ml_service</a>
+<a class="sourceLine" id="cb1-3" title="3"><span class="fu">ls</span> -l</a></code></pre></div>
+<p>In my case, I had two files in the repository, <code>LICENSE</code> and <code>README.md</code>.</p>
+<h2 id="installation">Installation</h2>
+<p>Let’s set up and activate the environment for development (I’m using Ubuntu 16.04). I will use <code>virtualenv</code>:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb2-1" title="1"><span class="ex">virtualenv</span> venv --python=python3.6</a>
+<a class="sourceLine" id="cb2-2" title="2"><span class="bu">source</span> venv/bin/activate</a></code></pre></div>
+<p>You will need to activate the environment every time you are starting work on your project in the new terminal.</p>
+<p>To install needed packages I will use <code>pip3</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb3-1" title="1"><span class="ex">pip3</span> install django==2.2.4</a></code></pre></div>
+<p>The Django is installed in version <code>2.2.4</code>.</p>
+<h2 id="start-django-project">Start Django project</h2>
+<p>I will set up the Django project in the <code>backend</code> directory. The Django project name is set to <code>server</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb4-1" title="1"><span class="fu">mkdir</span> backend</a>
+<a class="sourceLine" id="cb4-2" title="2"><span class="bu">cd</span> backend</a>
+<a class="sourceLine" id="cb4-3" title="3"><span class="ex">django-admin</span> startproject server</a></code></pre></div>
+<p>You can run your initiated server with the following command:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb5-1" title="1"><span class="bu">cd</span> server</a>
+<a class="sourceLine" id="cb5-2" title="2"><span class="ex">python</span> manage.py runserver</a></code></pre></div>
+<p>When you enter <code>127.0.0.1:8000</code> in your favorite web browser you should see default Django welcome site (<a href="#fig:2">2</a>).</p>
+<div id="fig:2" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/02_django_setup.png" alt="Figure&nbsp;2: Django default welcome site"><figcaption><span>Figure&nbsp;2:</span> Django default welcome site</figcaption>
+</figure>
+</div>
+<p><strong>Congratulations!!!</strong> you have successfully set up the environment.</p>
+<h3 id="add-source-files-to-the-repository">Add source files to the repository</h3>
+<p>Before we go to the next chapter, let’s commit new files.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># please execute it in your main project directory</span></a>
+<a class="sourceLine" id="cb6-2" title="2"><span class="fu">git</span> add backend/</a>
+<a class="sourceLine" id="cb6-3" title="3"><span class="fu">git</span> commit -am <span class="st">"setup django project"</span></a>
+<a class="sourceLine" id="cb6-4" title="4"><span class="fu">git</span> push</a></code></pre></div>
+<p>The following files should be added to your project:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb7-1" title="1"><span class="ex">new</span> file:   backend/server/manage.py</a>
+<a class="sourceLine" id="cb7-2" title="2"><span class="ex">new</span> file:   backend/server/server/__init__.py</a>
+<a class="sourceLine" id="cb7-3" title="3"><span class="ex">new</span> file:   backend/server/server/settings.py</a>
+<a class="sourceLine" id="cb7-4" title="4"><span class="ex">new</span> file:   backend/server/server/urls.py</a>
+<a class="sourceLine" id="cb7-5" title="5"><span class="ex">new</span> file:   backend/server/server/wsgi.py</a></code></pre></div>
+<p>In your directory, there are other files which are not added to the repository because there are excluded in <code>.gitignore</code> file.</p>
+<h1 id="build-ml-algorithms">Build ML algorithms</h1>
+<p>In this chapter you will learn:</p>
+<ul>
+<li>how to setup Jupyter notebook,</li>
+<li>how to build two ML algorithms,</li>
+<li>save pre-processing details and algorithms.</li>
+</ul>
+<h2 id="setup-jupyter-notebook">Setup Jupyter notebook</h2>
+<p>For building ML algorithms I’m using Jupyter notebook. It can be easily installed:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># run commands in your project directory</span></a>
+<a class="sourceLine" id="cb8-2" title="2"><span class="ex">pip3</span> install jupyter notebook</a></code></pre></div>
+<p>To set Jupyter to use local <code>virtualenv</code> environment run:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb9-1" title="1"><span class="ex">ipython</span> kernel install --user --name=venv</a></code></pre></div>
+<p>I will create a <code>research</code> directory where I will put Jupiter files. To start Jupyter notebook run:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb10-1" title="1"><span class="co"># create a research directory</span></a>
+<a class="sourceLine" id="cb10-2" title="2"><span class="fu">mkdir</span> research</a>
+<a class="sourceLine" id="cb10-3" title="3"><span class="bu">cd</span> research</a>
+<a class="sourceLine" id="cb10-4" title="4"><span class="co"># start Jupyter</span></a>
+<a class="sourceLine" id="cb10-5" title="5"><span class="ex">jupyter</span> notebook</a></code></pre></div>
+<p>When starting a new notebook make sure that you select the correct kernel, <code>venv</code> in our case (image <a href="#fig:3">3</a>).</p>
+<div id="fig:3" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/03_jupyter_new.png" alt="Figure&nbsp;3: Start new jupyter notebook"><figcaption><span>Figure&nbsp;3:</span> Start new jupyter notebook</figcaption>
+</figure>
+</div>
+<h2 id="train-ml-algorithms">Train ML algorithms</h2>
+<p>Before building ML algorithms we need to install packages:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb11-1" title="1"><span class="ex">pip3</span> install numpy pandas sklearn joblib</a></code></pre></div>
+<p>The <code>numpy</code> and <code>pandas</code> packages are used for data manipulation. The <code>joblib</code> is used for ML objects saving. Whereas, the <code>sklearn</code> package offers a wide range of ML algorithms. We need to reload Jupyter after installation.</p>
+<p>The first step in our code is to load packages:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb12-1" title="1"><span class="im">import</span> json <span class="co"># will be needed for saving preprocessing details</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="im">import</span> numpy <span class="im">as</span> np <span class="co"># for data manipulation</span></a>
+<a class="sourceLine" id="cb12-3" title="3"><span class="im">import</span> pandas <span class="im">as</span> pd <span class="co"># for data manipulation</span></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split <span class="co"># will be used for data split</span></a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> LabelEncoder <span class="co"># for preprocessing</span></a>
+<a class="sourceLine" id="cb12-6" title="6"><span class="im">from</span> sklearn.ensemble <span class="im">import</span> RandomForestClassifier <span class="co"># for training the algorithm</span></a>
+<a class="sourceLine" id="cb12-7" title="7"><span class="im">from</span> sklearn.ensemble <span class="im">import</span> ExtraTreesClassifier <span class="co"># for training the algorithm</span></a>
+<a class="sourceLine" id="cb12-8" title="8"><span class="im">import</span> joblib <span class="co"># for saving algorithm and preprocessing objects</span></a></code></pre></div>
+<h3 id="loading-data">Loading data</h3>
+<p>In this tutorial, I will use <a href="https://archive.ics.uci.edu/ml/datasets/adult">Adult Income data set</a>.
+ In this data set, the ML will be used to predict whether income exceeds
+ $50K/year based on census data. I will load data from my <a href="https://github.com/pplonski/datasets-for-start">public repository with data sets good for start with ML</a>.</p>
+<p>Code to load data and show first rows of data (figure <a href="#fig:4">4</a>):</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb13-1" title="1"><span class="co"># load dataset</span></a>
+<a class="sourceLine" id="cb13-2" title="2">df <span class="op">=</span> pd.read_csv(<span class="st">'https://raw.githubusercontent.com/pplonski/datasets-for-start/master/adult/data.csv'</span>, skipinitialspace<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb13-3" title="3">x_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> df.columns <span class="cf">if</span> c <span class="op">!=</span> <span class="st">'income'</span>]</a>
+<a class="sourceLine" id="cb13-4" title="4"><span class="co"># set input matrix and target column</span></a>
+<a class="sourceLine" id="cb13-5" title="5">X <span class="op">=</span> df[x_cols]</a>
+<a class="sourceLine" id="cb13-6" title="6">y <span class="op">=</span> df[<span class="st">'income'</span>]</a>
+<a class="sourceLine" id="cb13-7" title="7"><span class="co"># show first rows of data</span></a>
+<a class="sourceLine" id="cb13-8" title="8">df.head()</a></code></pre></div>
+<div id="fig:4" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/03_data_example.png" alt="Figure&nbsp;4: First rows of our dataset"><figcaption><span>Figure&nbsp;4:</span> First rows of our dataset</figcaption>
+</figure>
+</div>
+<p>The <code>X</code> matrix has 32,561 rows and 14 columns. This is input data for our algorithm, each row describes one person. The <code>y</code> vector has 32,561 values indicating whether income exceeds 50K per year.</p>
+<p>Before starting data preprocessing we will split our data into 
+training, and testing subsets. We will use 30% of the data for testing.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb14-1" title="1"><span class="co"># data split train / test</span></a>
+<a class="sourceLine" id="cb14-2" title="2">X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size <span class="op">=</span> <span class="fl">0.3</span>, random_state<span class="op">=</span><span class="dv">1234</span>)</a></code></pre></div>
+<h3 id="data-pre-processing">Data pre-processing</h3>
+<p>In our data set, there are missing values and categorical columns. For ML algorithm training I will use the <code>Random Forest</code> algorithm from the <code>sklearn</code>
+ package. In the current implementation it can not handle missing values
+ and categorical columns, that’s why we need to apply pre-processing 
+algorithms.</p>
+<p>To fill missing values we will use the most frequent value in each 
+column (there are many other filling methods, the one I select is just 
+for example purposes).</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb15-1" title="1"><span class="co"># fill missing values</span></a>
+<a class="sourceLine" id="cb15-2" title="2">train_mode <span class="op">=</span> <span class="bu">dict</span>(X_train.mode().iloc[<span class="dv">0</span>])</a>
+<a class="sourceLine" id="cb15-3" title="3">X_train <span class="op">=</span> X_train.fillna(train_mode)</a>
+<a class="sourceLine" id="cb15-4" title="4"><span class="bu">print</span>(train_mode)</a></code></pre></div>
+<p>The <code>train_mode</code> values look like:</p>
+<pre><code>{'age': 31.0,
+ 'workclass': 3.0,
+ 'fnlwgt': 121124.0,
+ 'education': 11.0,
+ 'education-num': 9.0,
+ 'marital-status': 2.0,
+ 'occupation': 9.0,
+ 'relationship': 0.0,
+ 'race': 4.0,
+ 'sex': 1.0,
+ 'capital-gain': 0.0,
+ 'capital-loss': 0.0,
+ 'hours-per-week': 40.0,
+ 'native-country': 37.0}</code></pre>
+<p>From <code>train_mode</code> you see, that for example in the <code>age</code> column the most frequent value is <code>31.0</code>.</p>
+<p>Let’s convert categoricals into numbers. I will use <code>LabelEncoder</code> from <code>sklearn</code> package:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb17-1" title="1"><span class="co"># convert categoricals</span></a>
+<a class="sourceLine" id="cb17-2" title="2">encoders <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb17-3" title="3"><span class="cf">for</span> column <span class="kw">in</span> [<span class="st">'workclass'</span>, <span class="st">'education'</span>, <span class="st">'marital-status'</span>,</a>
+<a class="sourceLine" id="cb17-4" title="4">                <span class="st">'occupation'</span>, <span class="st">'relationship'</span>, <span class="st">'race'</span>,</a>
+<a class="sourceLine" id="cb17-5" title="5">                <span class="st">'sex'</span>,<span class="st">'native-country'</span>]:</a>
+<a class="sourceLine" id="cb17-6" title="6">    categorical_convert <span class="op">=</span> LabelEncoder()</a>
+<a class="sourceLine" id="cb17-7" title="7">    X_train[column] <span class="op">=</span> categorical_convert.fit_transform(X_train[column])</a>
+<a class="sourceLine" id="cb17-8" title="8">    encoders[column] <span class="op">=</span> categorical_convert</a></code></pre></div>
+<h3 id="algorithms-training">Algorithms training</h3>
+<p>Data is ready, so we can train our Random Forest algorithm.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb18-1" title="1"><span class="co"># train the Random Forest algorithm</span></a>
+<a class="sourceLine" id="cb18-2" title="2">rf <span class="op">=</span> RandomForestClassifier(n_estimators <span class="op">=</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb18-3" title="3">rf <span class="op">=</span> rf.fit(X_train, y_train)</a></code></pre></div>
+<p>We will also train <code>Extra Trees</code> algorithm:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb19-1" title="1"><span class="co"># train the Extra Trees algorithm</span></a>
+<a class="sourceLine" id="cb19-2" title="2">et <span class="op">=</span> ExtraTreesClassifier(n_estimators <span class="op">=</span> <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb19-3" title="3">et <span class="op">=</span> et.fit(X_train, y_train)</a></code></pre></div>
+<p>As you see, training the algorithm is easy, just 2 lines of code - 
+much less than data reading and pre-processing. Now, let’s save the 
+algorithm that we have created. The important thing to notice is that 
+the ML algorithm is not only the <code>rf</code> and <code>et</code> variable (with model weights), but we also need to save pre-processing variables <code>train_mode</code> and <code>encoders</code> as well. For saving, I will use <code>joblib</code> package.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb20-1" title="1"><span class="co"># save preprocessing objects and RF algorithm</span></a>
+<a class="sourceLine" id="cb20-2" title="2">joblib.dump(train_mode, <span class="st">"./train_mode.joblib"</span>, compress<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb20-3" title="3">joblib.dump(encoders, <span class="st">"./encoders.joblib"</span>, compress<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb20-4" title="4">joblib.dump(rf, <span class="st">"./random_forest.joblib"</span>, compress<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb20-5" title="5">joblib.dump(et, <span class="st">"./extra_trees.joblib"</span>, compress<span class="op">=</span><span class="va">True</span>)</a></code></pre></div>
+<h3 id="add-ml-code-and-artifacts-to-the-repository">Add ML code and artifacts to the repository</h3>
+<p>Before continuing to the next chapter, let’s add our notebook and files to the repository.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb21-1" title="1"><span class="co"># execute in project main directory</span></a>
+<a class="sourceLine" id="cb21-2" title="2"><span class="fu">git</span> add research/*</a>
+<a class="sourceLine" id="cb21-3" title="3"><span class="fu">git</span> commit -am <span class="st">"add ML code and algorithms"</span></a>
+<a class="sourceLine" id="cb21-4" title="4"><span class="fu">git</span> push</a></code></pre></div>
+<p>Each file with preprocessing objects and algorithms is smaller than 
+100 MB, which is the GitHub file limit. For larger files it will be 
+better to use separate version control systems like <a href="https://dvc.org/">DVC</a> - however, this is a more advanced topic.</p>
+<h1 id="django-models">Django models</h1>
+<p>What have you already accomplished:</p>
+<ul>
+<li>you have default Django project initialized,</li>
+<li>you have two ML algorithms trained and ready for inference.</li>
+</ul>
+<p>What you will learn in this chapter:</p>
+<ul>
+<li>build Django models to store information about ML algorithms and requests in the database,</li>
+<li>write REST API for your ML algorithms with the <code>Django REST Framework</code>.</li>
+</ul>
+<h2 id="create-django-models">Create Django models</h2>
+<p>To create Django models we need to create a new app:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb22-1" title="1"><span class="co"># run this in backend/server directory</span></a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="ex">python</span> manage.py startapp endpoints</a>
+<a class="sourceLine" id="cb22-3" title="3"><span class="fu">mkdir</span> apps</a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="fu">mv</span> endpoints/ apps/</a></code></pre></div>
+<p>With the above commands, we have created the <code>endpoints</code> app and moved it to the <code>apps</code> directory. I have added the <code>apps</code> directory to keep the project clean.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb23-1" title="1"><span class="co"># list files in apps/endpoints</span></a>
+<a class="sourceLine" id="cb23-2" title="2"><span class="fu">ls</span> apps/endpoints/</a>
+<a class="sourceLine" id="cb23-3" title="3"><span class="co"># admin.py  apps.py  __init__.py  migrations  models.py  tests.py  views.py</span></a></code></pre></div>
+<p>Let’s go to <code>apps/endpoints/models.py</code> file and define database models (Django provides object-relational mapping layer (ORM)).</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb24-1" title="1"><span class="im">from</span> django.db <span class="im">import</span> models</a>
+<a class="sourceLine" id="cb24-2" title="2"></a>
+<a class="sourceLine" id="cb24-3" title="3"><span class="kw">class</span> Endpoint(models.Model):</a>
+<a class="sourceLine" id="cb24-4" title="4">    <span class="co">'''</span></a>
+<a class="sourceLine" id="cb24-5" title="5"><span class="co">    The Endpoint object represents ML API endpoint.</span></a>
+<a class="sourceLine" id="cb24-6" title="6"></a>
+<a class="sourceLine" id="cb24-7" title="7"><span class="co">    Attributes:</span></a>
+<a class="sourceLine" id="cb24-8" title="8"><span class="co">        name: The name of the endpoint, it will be used in API URL,</span></a>
+<a class="sourceLine" id="cb24-9" title="9"><span class="co">        owner: The string with owner name,</span></a>
+<a class="sourceLine" id="cb24-10" title="10"><span class="co">        created_at: The date when endpoint was created.</span></a>
+<a class="sourceLine" id="cb24-11" title="11"><span class="co">    '''</span></a>
+<a class="sourceLine" id="cb24-12" title="12">    name <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-13" title="13">    owner <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-14" title="14">    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, blank<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-15" title="15"></a>
+<a class="sourceLine" id="cb24-16" title="16"><span class="kw">class</span> MLAlgorithm(models.Model):</a>
+<a class="sourceLine" id="cb24-17" title="17">    <span class="co">'''</span></a>
+<a class="sourceLine" id="cb24-18" title="18"><span class="co">    The MLAlgorithm represent the ML algorithm object.</span></a>
+<a class="sourceLine" id="cb24-19" title="19"></a>
+<a class="sourceLine" id="cb24-20" title="20"><span class="co">    Attributes:</span></a>
+<a class="sourceLine" id="cb24-21" title="21"><span class="co">        name: The name of the algorithm.</span></a>
+<a class="sourceLine" id="cb24-22" title="22"><span class="co">        description: The short description of how the algorithm works.</span></a>
+<a class="sourceLine" id="cb24-23" title="23"><span class="co">        code: The code of the algorithm.</span></a>
+<a class="sourceLine" id="cb24-24" title="24"><span class="co">        version: The version of the algorithm similar to software versioning.</span></a>
+<a class="sourceLine" id="cb24-25" title="25"><span class="co">        owner: The name of the owner.</span></a>
+<a class="sourceLine" id="cb24-26" title="26"><span class="co">        created_at: The date when MLAlgorithm was added.</span></a>
+<a class="sourceLine" id="cb24-27" title="27"><span class="co">        parent_endpoint: The reference to the Endpoint.</span></a>
+<a class="sourceLine" id="cb24-28" title="28"><span class="co">    '''</span></a>
+<a class="sourceLine" id="cb24-29" title="29">    name <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-30" title="30">    description <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb24-31" title="31">    code <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">50000</span>)</a>
+<a class="sourceLine" id="cb24-32" title="32">    version <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-33" title="33">    owner <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-34" title="34">    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, blank<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-35" title="35">    parent_endpoint <span class="op">=</span> models.ForeignKey(Endpoint, on_delete<span class="op">=</span>models.CASCADE)</a>
+<a class="sourceLine" id="cb24-36" title="36"></a>
+<a class="sourceLine" id="cb24-37" title="37"><span class="kw">class</span> MLAlgorithmStatus(models.Model):</a>
+<a class="sourceLine" id="cb24-38" title="38">    <span class="co">'''</span></a>
+<a class="sourceLine" id="cb24-39" title="39"><span class="co">    The MLAlgorithmStatus represent status of the MLAlgorithm which can change during the time.</span></a>
+<a class="sourceLine" id="cb24-40" title="40"></a>
+<a class="sourceLine" id="cb24-41" title="41"><span class="co">    Attributes:</span></a>
+<a class="sourceLine" id="cb24-42" title="42"><span class="co">        status: The status of algorithm in the endpoint. Can be: testing, staging, production, ab_testing.</span></a>
+<a class="sourceLine" id="cb24-43" title="43"><span class="co">        active: The boolean flag which point to currently active status.</span></a>
+<a class="sourceLine" id="cb24-44" title="44"><span class="co">        created_by: The name of creator.</span></a>
+<a class="sourceLine" id="cb24-45" title="45"><span class="co">        created_at: The date of status creation.</span></a>
+<a class="sourceLine" id="cb24-46" title="46"><span class="co">        parent_mlalgorithm: The reference to corresponding MLAlgorithm.</span></a>
+<a class="sourceLine" id="cb24-47" title="47"></a>
+<a class="sourceLine" id="cb24-48" title="48"><span class="co">    '''</span></a>
+<a class="sourceLine" id="cb24-49" title="49">    status <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-50" title="50">    active <span class="op">=</span> models.BooleanField()</a>
+<a class="sourceLine" id="cb24-51" title="51">    created_by <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb24-52" title="52">    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, blank<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-53" title="53">    parent_mlalgorithm <span class="op">=</span> models.ForeignKey(MLAlgorithm, on_delete<span class="op">=</span>models.CASCADE, related_name <span class="op">=</span> <span class="st">"status"</span>)</a>
+<a class="sourceLine" id="cb24-54" title="54"></a>
+<a class="sourceLine" id="cb24-55" title="55"><span class="kw">class</span> MLRequest(models.Model):</a>
+<a class="sourceLine" id="cb24-56" title="56">    <span class="co">'''</span></a>
+<a class="sourceLine" id="cb24-57" title="57"><span class="co">    The MLRequest will keep information about all requests to ML algorithms.</span></a>
+<a class="sourceLine" id="cb24-58" title="58"></a>
+<a class="sourceLine" id="cb24-59" title="59"><span class="co">    Attributes:</span></a>
+<a class="sourceLine" id="cb24-60" title="60"><span class="co">        input_data: The input data to ML algorithm in JSON format.</span></a>
+<a class="sourceLine" id="cb24-61" title="61"><span class="co">        full_response: The response of the ML algorithm.</span></a>
+<a class="sourceLine" id="cb24-62" title="62"><span class="co">        response: The response of the ML algorithm in JSON format.</span></a>
+<a class="sourceLine" id="cb24-63" title="63"><span class="co">        feedback: The feedback about the response in JSON format.</span></a>
+<a class="sourceLine" id="cb24-64" title="64"><span class="co">        created_at: The date when request was created.</span></a>
+<a class="sourceLine" id="cb24-65" title="65"><span class="co">        parent_mlalgorithm: The reference to MLAlgorithm used to compute response.</span></a>
+<a class="sourceLine" id="cb24-66" title="66"><span class="co">    '''</span></a>
+<a class="sourceLine" id="cb24-67" title="67">    input_data <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb24-68" title="68">    full_response <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb24-69" title="69">    response <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb24-70" title="70">    feedback <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>, blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-71" title="71">    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, blank<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb24-72" title="72">    parent_mlalgorithm <span class="op">=</span> models.ForeignKey(MLAlgorithm, on_delete<span class="op">=</span>models.CASCADE)</a></code></pre></div>
+<p>We defined three models:</p>
+<ul>
+<li><code>Endpoint</code> - to keep information about our endpoints,</li>
+<li><code>MLAlgorithm</code> - to keep information about ML algorithms used in the service,</li>
+<li><code>MLAlgorithmStatus</code> - to keep information about ML algorithm statuses. The status can change in time, for example, we can set <em>testing</em> as initial status and then after testing period switch to <em>production</em> state.</li>
+<li><code>MLRequest</code> - to keep information about all requests to ML algorithms. It will be needed to monitor ML algorithms and run A/B tests.</li>
+</ul>
+<p>We need to add our app to <code>INSTALLED_APPS</code> in <code>backend/server/server/settings.py</code>, it should look like:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb25-1" title="1">INSTALLED_APPS <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb25-2" title="2">    <span class="st">'django.contrib.admin'</span>,</a>
+<a class="sourceLine" id="cb25-3" title="3">    <span class="st">'django.contrib.auth'</span>,</a>
+<a class="sourceLine" id="cb25-4" title="4">    <span class="st">'django.contrib.contenttypes'</span>,</a>
+<a class="sourceLine" id="cb25-5" title="5">    <span class="st">'django.contrib.sessions'</span>,</a>
+<a class="sourceLine" id="cb25-6" title="6">    <span class="st">'django.contrib.messages'</span>,</a>
+<a class="sourceLine" id="cb25-7" title="7">    <span class="st">'django.contrib.staticfiles'</span>,</a>
+<a class="sourceLine" id="cb25-8" title="8">    <span class="co"># apps</span></a>
+<a class="sourceLine" id="cb25-9" title="9">    <span class="st">'apps.endpoints'</span></a>
+<a class="sourceLine" id="cb25-10" title="10">]</a></code></pre></div>
+<p>To apply our models to the database we need to run migrations:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb26-1" title="1"><span class="co"># please run it in backend/server directory</span></a>
+<a class="sourceLine" id="cb26-2" title="2"><span class="ex">python</span> manage.py makemigrations</a>
+<a class="sourceLine" id="cb26-3" title="3"><span class="ex">python</span> manage.py migrate</a></code></pre></div>
+<p>The above commands will create tables in the database. By default, 
+Django is using SQLite as a database. For this tutorial, we can keep 
+this simple database, for more advanced projects you can set a Postgres 
+or MySQL as a database (you can configure this by setting <code>DATABASES</code> variable in <code>backend/server/server/settings.py</code>).</p>
+<h2 id="create-rest-api-for-models">Create REST API for models</h2>
+<p>So far we have defined database models, but we will not see anything 
+new when running the web server. We need to specify REST API to our 
+objects. The simplest and cleanest way to achieve this is to use <a href="https://www.django-rest-framework.org/"><code>Django REST Framework</code></a> (DRF). To install <code>DRF</code> we need to run:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb27-1" title="1"><span class="ex">pip3</span> install djangorestframework</a>
+<a class="sourceLine" id="cb27-2" title="2"><span class="ex">pip3</span> install markdown       <span class="co"># Markdown support for the browsable API.</span></a>
+<a class="sourceLine" id="cb27-3" title="3"><span class="ex">pip3</span> install django-filter  <span class="co"># Filtering support</span></a></code></pre></div>
+<p>and add it to <code>INSTALLED_APPS</code> in <code>backend/server/server/settings.py</code>:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb28-1" title="1">INSTALLED_APPS <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb28-2" title="2">    <span class="st">'django.contrib.admin'</span>,</a>
+<a class="sourceLine" id="cb28-3" title="3">    <span class="st">'django.contrib.auth'</span>,</a>
+<a class="sourceLine" id="cb28-4" title="4">    <span class="st">'django.contrib.contenttypes'</span>,</a>
+<a class="sourceLine" id="cb28-5" title="5">    <span class="st">'django.contrib.sessions'</span>,</a>
+<a class="sourceLine" id="cb28-6" title="6">    <span class="st">'django.contrib.messages'</span>,</a>
+<a class="sourceLine" id="cb28-7" title="7">    <span class="st">'django.contrib.staticfiles'</span>,</a>
+<a class="sourceLine" id="cb28-8" title="8">    <span class="st">'rest_framework'</span>, <span class="co"># add django rest framework</span></a>
+<a class="sourceLine" id="cb28-9" title="9">    <span class="co"># apps</span></a>
+<a class="sourceLine" id="cb28-10" title="10">    <span class="st">'apps.endpoints'</span></a>
+<a class="sourceLine" id="cb28-11" title="11">]</a></code></pre></div>
+<p>To see something in the browser we need to define:</p>
+<ul>
+<li>serializers - they will define how database objects are mapped in requests,</li>
+<li>views - how our models are accessed in REST API,</li>
+<li>urls - definition of REST API URL addresses for our models.</li>
+</ul>
+<h3 id="drf-serializers">DRF Serializers</h3>
+<p>Please add <code>serializers.py</code> file to <code>server/apps/endpoints</code> directory:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb29-1" title="1"><span class="co"># backend/server/apps/endpoints/serializers.py file</span></a>
+<a class="sourceLine" id="cb29-2" title="2"><span class="im">from</span> rest_framework <span class="im">import</span> serializers</a>
+<a class="sourceLine" id="cb29-3" title="3"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> Endpoint</a>
+<a class="sourceLine" id="cb29-4" title="4"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithm</a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithmStatus</a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLRequest</a>
+<a class="sourceLine" id="cb29-7" title="7"></a>
+<a class="sourceLine" id="cb29-8" title="8"><span class="kw">class</span> EndpointSerializer(serializers.ModelSerializer):</a>
+<a class="sourceLine" id="cb29-9" title="9">    <span class="kw">class</span> Meta:</a>
+<a class="sourceLine" id="cb29-10" title="10">        model <span class="op">=</span> Endpoint</a>
+<a class="sourceLine" id="cb29-11" title="11">        read_only_fields <span class="op">=</span> (<span class="st">"id"</span>, <span class="st">"name"</span>, <span class="st">"owner"</span>, <span class="st">"created_at"</span>)</a>
+<a class="sourceLine" id="cb29-12" title="12">        fields <span class="op">=</span> read_only_fields</a>
+<a class="sourceLine" id="cb29-13" title="13"></a>
+<a class="sourceLine" id="cb29-14" title="14"></a>
+<a class="sourceLine" id="cb29-15" title="15"><span class="kw">class</span> MLAlgorithmSerializer(serializers.ModelSerializer):</a>
+<a class="sourceLine" id="cb29-16" title="16"></a>
+<a class="sourceLine" id="cb29-17" title="17">    current_status <span class="op">=</span> serializers.SerializerMethodField(read_only<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb29-18" title="18"></a>
+<a class="sourceLine" id="cb29-19" title="19">    <span class="kw">def</span> get_current_status(<span class="va">self</span>, mlalgorithm):</a>
+<a class="sourceLine" id="cb29-20" title="20">        <span class="cf">return</span> MLAlgorithmStatus.objects.<span class="bu">filter</span>(parent_mlalgorithm<span class="op">=</span>mlalgorithm).latest(<span class="st">'created_at'</span>).status</a>
+<a class="sourceLine" id="cb29-21" title="21"></a>
+<a class="sourceLine" id="cb29-22" title="22">    <span class="kw">class</span> Meta:</a>
+<a class="sourceLine" id="cb29-23" title="23">        model <span class="op">=</span> MLAlgorithm</a>
+<a class="sourceLine" id="cb29-24" title="24">        read_only_fields <span class="op">=</span> (<span class="st">"id"</span>, <span class="st">"name"</span>, <span class="st">"description"</span>, <span class="st">"code"</span>,</a>
+<a class="sourceLine" id="cb29-25" title="25">                            <span class="st">"version"</span>, <span class="st">"owner"</span>, <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb29-26" title="26">                            <span class="st">"parent_endpoint"</span>, <span class="st">"current_status"</span>)</a>
+<a class="sourceLine" id="cb29-27" title="27">        fields <span class="op">=</span> read_only_fields</a>
+<a class="sourceLine" id="cb29-28" title="28"></a>
+<a class="sourceLine" id="cb29-29" title="29"><span class="kw">class</span> MLAlgorithmStatusSerializer(serializers.ModelSerializer):</a>
+<a class="sourceLine" id="cb29-30" title="30">    <span class="kw">class</span> Meta:</a>
+<a class="sourceLine" id="cb29-31" title="31">        model <span class="op">=</span> MLAlgorithmStatus</a>
+<a class="sourceLine" id="cb29-32" title="32">        read_only_fields <span class="op">=</span> (<span class="st">"id"</span>, <span class="st">"active"</span>)</a>
+<a class="sourceLine" id="cb29-33" title="33">        fields <span class="op">=</span> (<span class="st">"id"</span>, <span class="st">"active"</span>, <span class="st">"status"</span>, <span class="st">"created_by"</span>, <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb29-34" title="34">                            <span class="st">"parent_mlalgorithm"</span>)</a>
+<a class="sourceLine" id="cb29-35" title="35"></a>
+<a class="sourceLine" id="cb29-36" title="36"><span class="kw">class</span> MLRequestSerializer(serializers.ModelSerializer):</a>
+<a class="sourceLine" id="cb29-37" title="37">    <span class="kw">class</span> Meta:</a>
+<a class="sourceLine" id="cb29-38" title="38">        model <span class="op">=</span> MLRequest</a>
+<a class="sourceLine" id="cb29-39" title="39">        read_only_fields <span class="op">=</span> (</a>
+<a class="sourceLine" id="cb29-40" title="40">            <span class="st">"id"</span>,</a>
+<a class="sourceLine" id="cb29-41" title="41">            <span class="st">"input_data"</span>,</a>
+<a class="sourceLine" id="cb29-42" title="42">            <span class="st">"full_response"</span>,</a>
+<a class="sourceLine" id="cb29-43" title="43">            <span class="st">"response"</span>,</a>
+<a class="sourceLine" id="cb29-44" title="44">            <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb29-45" title="45">            <span class="st">"parent_mlalgorithm"</span>,</a>
+<a class="sourceLine" id="cb29-46" title="46">        )</a>
+<a class="sourceLine" id="cb29-47" title="47">        fields <span class="op">=</span>  (</a>
+<a class="sourceLine" id="cb29-48" title="48">            <span class="st">"id"</span>,</a>
+<a class="sourceLine" id="cb29-49" title="49">            <span class="st">"input_data"</span>,</a>
+<a class="sourceLine" id="cb29-50" title="50">            <span class="st">"full_response"</span>,</a>
+<a class="sourceLine" id="cb29-51" title="51">            <span class="st">"response"</span>,</a>
+<a class="sourceLine" id="cb29-52" title="52">            <span class="st">"feedback"</span>,</a>
+<a class="sourceLine" id="cb29-53" title="53">            <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb29-54" title="54">            <span class="st">"parent_mlalgorithm"</span>,</a>
+<a class="sourceLine" id="cb29-55" title="55">        )</a></code></pre></div>
+<p>Serializers will help with packing and unpacking database objects into JSON objects. In <code>Endpoints</code> and <code>MLAlgorithm</code>
+ serializers, we defined all read-only fields. This is because, we will 
+create and modify our objects only on the server-side.For <code>MLAlgorithmStatus</code>, fields <code>status</code>, <code>created_by</code>, <code>created_at</code> and <code>parent_mlalgorithm</code> are in read and write mode, we will use the to set algorithm status by REST API. For <code>MLRequest</code> serializer there is a <code>feedback</code> field that is left in read and write mode - it will be needed to provide feedback about predictions to the server.</p>
+<p>The <code>MLAlgorithmSerializer</code> is more complex than others. It has one filed <code>current_status</code> that represents the latest status from <code>MLAlgorithmStatus</code>.</p>
+<h3 id="views">Views</h3>
+<p>To add views please open <code>backend/server/endpoints/views.py</code> file and add the following code:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb30-1" title="1"><span class="co"># backend/server/apps/endpoints/views.py file</span></a>
+<a class="sourceLine" id="cb30-2" title="2"><span class="im">from</span> rest_framework <span class="im">import</span> viewsets</a>
+<a class="sourceLine" id="cb30-3" title="3"><span class="im">from</span> rest_framework <span class="im">import</span> mixins</a>
+<a class="sourceLine" id="cb30-4" title="4"></a>
+<a class="sourceLine" id="cb30-5" title="5"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> Endpoint</a>
+<a class="sourceLine" id="cb30-6" title="6"><span class="im">from</span> apps.endpoints.serializers <span class="im">import</span> EndpointSerializer</a>
+<a class="sourceLine" id="cb30-7" title="7"></a>
+<a class="sourceLine" id="cb30-8" title="8"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithm</a>
+<a class="sourceLine" id="cb30-9" title="9"><span class="im">from</span> apps.endpoints.serializers <span class="im">import</span> MLAlgorithmSerializer</a>
+<a class="sourceLine" id="cb30-10" title="10"></a>
+<a class="sourceLine" id="cb30-11" title="11"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithmStatus</a>
+<a class="sourceLine" id="cb30-12" title="12"><span class="im">from</span> apps.endpoints.serializers <span class="im">import</span> MLAlgorithmStatusSerializer</a>
+<a class="sourceLine" id="cb30-13" title="13"></a>
+<a class="sourceLine" id="cb30-14" title="14"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLRequest</a>
+<a class="sourceLine" id="cb30-15" title="15"><span class="im">from</span> apps.endpoints.serializers <span class="im">import</span> MLRequestSerializer</a>
+<a class="sourceLine" id="cb30-16" title="16"></a>
+<a class="sourceLine" id="cb30-17" title="17"><span class="kw">class</span> EndpointViewSet(</a>
+<a class="sourceLine" id="cb30-18" title="18">    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet</a>
+<a class="sourceLine" id="cb30-19" title="19">):</a>
+<a class="sourceLine" id="cb30-20" title="20">    serializer_class <span class="op">=</span> EndpointSerializer</a>
+<a class="sourceLine" id="cb30-21" title="21">    queryset <span class="op">=</span> Endpoint.objects.<span class="bu">all</span>()</a>
+<a class="sourceLine" id="cb30-22" title="22"></a>
+<a class="sourceLine" id="cb30-23" title="23"></a>
+<a class="sourceLine" id="cb30-24" title="24"><span class="kw">class</span> MLAlgorithmViewSet(</a>
+<a class="sourceLine" id="cb30-25" title="25">    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet</a>
+<a class="sourceLine" id="cb30-26" title="26">):</a>
+<a class="sourceLine" id="cb30-27" title="27">    serializer_class <span class="op">=</span> MLAlgorithmSerializer</a>
+<a class="sourceLine" id="cb30-28" title="28">    queryset <span class="op">=</span> MLAlgorithm.objects.<span class="bu">all</span>()</a>
+<a class="sourceLine" id="cb30-29" title="29"></a>
+<a class="sourceLine" id="cb30-30" title="30"></a>
+<a class="sourceLine" id="cb30-31" title="31"><span class="kw">def</span> deactivate_other_statuses(instance):</a>
+<a class="sourceLine" id="cb30-32" title="32">    old_statuses <span class="op">=</span> MLAlgorithmStatus.objects.<span class="bu">filter</span>(parent_mlalgorithm <span class="op">=</span> instance.parent_mlalgorithm,</a>
+<a class="sourceLine" id="cb30-33" title="33">                                                        created_at__lt<span class="op">=</span>instance.created_at,</a>
+<a class="sourceLine" id="cb30-34" title="34">                                                        active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb30-35" title="35">    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(old_statuses)):</a>
+<a class="sourceLine" id="cb30-36" title="36">        old_statuses[i].active <span class="op">=</span> <span class="va">False</span></a>
+<a class="sourceLine" id="cb30-37" title="37">    MLAlgorithmStatus.objects.bulk_update(old_statuses, [<span class="st">"active"</span>])</a>
+<a class="sourceLine" id="cb30-38" title="38"></a>
+<a class="sourceLine" id="cb30-39" title="39"><span class="kw">class</span> MLAlgorithmStatusViewSet(</a>
+<a class="sourceLine" id="cb30-40" title="40">    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,</a>
+<a class="sourceLine" id="cb30-41" title="41">    mixins.CreateModelMixin</a>
+<a class="sourceLine" id="cb30-42" title="42">):</a>
+<a class="sourceLine" id="cb30-43" title="43">    serializer_class <span class="op">=</span> MLAlgorithmStatusSerializer</a>
+<a class="sourceLine" id="cb30-44" title="44">    queryset <span class="op">=</span> MLAlgorithmStatus.objects.<span class="bu">all</span>()</a>
+<a class="sourceLine" id="cb30-45" title="45">    <span class="kw">def</span> perform_create(<span class="va">self</span>, serializer):</a>
+<a class="sourceLine" id="cb30-46" title="46">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb30-47" title="47">            <span class="cf">with</span> transaction.atomic():</a>
+<a class="sourceLine" id="cb30-48" title="48">                instance <span class="op">=</span> serializer.save(active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb30-49" title="49">                <span class="co"># set active=False for other statuses</span></a>
+<a class="sourceLine" id="cb30-50" title="50">                deactivate_other_statuses(instance)</a>
+<a class="sourceLine" id="cb30-51" title="51"></a>
+<a class="sourceLine" id="cb30-52" title="52"></a>
+<a class="sourceLine" id="cb30-53" title="53"></a>
+<a class="sourceLine" id="cb30-54" title="54">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb30-55" title="55">            <span class="cf">raise</span> APIException(<span class="bu">str</span>(e))</a>
+<a class="sourceLine" id="cb30-56" title="56"></a>
+<a class="sourceLine" id="cb30-57" title="57"><span class="kw">class</span> MLRequestViewSet(</a>
+<a class="sourceLine" id="cb30-58" title="58">    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,</a>
+<a class="sourceLine" id="cb30-59" title="59">    mixins.UpdateModelMixin</a>
+<a class="sourceLine" id="cb30-60" title="60">):</a>
+<a class="sourceLine" id="cb30-61" title="61">    serializer_class <span class="op">=</span> MLRequestSerializer</a>
+<a class="sourceLine" id="cb30-62" title="62">    queryset <span class="op">=</span> MLRequest.objects.<span class="bu">all</span>()</a></code></pre></div>
+<p>For each model, we created a view which will allow to retrieve single
+ object or list of objects. We will not allow to create or modify <code>Endpoints</code>, <code>MLAlgorithms</code>
+ by REST API. The code to to handle creation of new ML related objects 
+will be on server side, I will describe it in the next chapter.</p>
+<p>We will allow to create <code>MLAlgorithmStatus</code> objects by REST API. We don’t allow to edit statuses for ML algorithms as we want to keep all status history.</p>
+<p>We allow to edit <code>MLRequest</code> objects, however only <code>feedback</code> field (please take a look at serializer definition).</p>
+<h3 id="urls">URLs</h3>
+<p>The last step is to add URLs to access out models. Please add <code>urls.py</code> file in <code>backend/server/apps/endpoints</code> with following code:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb31-1" title="1"><span class="co"># backend/server/apps/endpoints/urls.py file</span></a>
+<a class="sourceLine" id="cb31-2" title="2"><span class="im">from</span> django.conf.urls <span class="im">import</span> url, include</a>
+<a class="sourceLine" id="cb31-3" title="3"><span class="im">from</span> rest_framework.routers <span class="im">import</span> DefaultRouter</a>
+<a class="sourceLine" id="cb31-4" title="4"></a>
+<a class="sourceLine" id="cb31-5" title="5"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> EndpointViewSet</a>
+<a class="sourceLine" id="cb31-6" title="6"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLAlgorithmViewSet</a>
+<a class="sourceLine" id="cb31-7" title="7"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLAlgorithmStatusViewSet</a>
+<a class="sourceLine" id="cb31-8" title="8"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLRequestViewSet</a>
+<a class="sourceLine" id="cb31-9" title="9"></a>
+<a class="sourceLine" id="cb31-10" title="10">router <span class="op">=</span> DefaultRouter(trailing_slash<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb31-11" title="11">router.register(<span class="vs">r"endpoints"</span>, EndpointViewSet, basename<span class="op">=</span><span class="st">"endpoints"</span>)</a>
+<a class="sourceLine" id="cb31-12" title="12">router.register(<span class="vs">r"mlalgorithms"</span>, MLAlgorithmViewSet, basename<span class="op">=</span><span class="st">"mlalgorithms"</span>)</a>
+<a class="sourceLine" id="cb31-13" title="13">router.register(<span class="vs">r"mlalgorithmstatuses"</span>, MLAlgorithmStatusViewSet, basename<span class="op">=</span><span class="st">"mlalgorithmstatuses"</span>)</a>
+<a class="sourceLine" id="cb31-14" title="14">router.register(<span class="vs">r"mlrequests"</span>, MLRequestViewSet, basename<span class="op">=</span><span class="st">"mlrequests"</span>)</a>
+<a class="sourceLine" id="cb31-15" title="15"></a>
+<a class="sourceLine" id="cb31-16" title="16">urlpatterns <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb31-17" title="17">    url(<span class="vs">r"^api/v1/"</span>, include(router.urls)),</a>
+<a class="sourceLine" id="cb31-18" title="18">]</a></code></pre></div>
+<p>The above code will create REST API routers to our database models. Our models will be accessed by following the URL pattern:</p>
+<pre><code>http://&lt;server-ip&gt;/api/v1/&lt;object-name&gt;</code></pre>
+<p>You can notice that we include <code>v1</code> in the API address. This might be needed later for API versioning.</p>
+<p>We need to add endpoints urls to main <code>urls.py</code> file of the server (file <code>backend/server/server/urls.py</code>):</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb33-1" title="1"><span class="co"># backend/server/server/urls.py file</span></a>
+<a class="sourceLine" id="cb33-2" title="2"><span class="im">from</span> django.conf.urls <span class="im">import</span> url, include</a>
+<a class="sourceLine" id="cb33-3" title="3"><span class="im">from</span> django.contrib <span class="im">import</span> admin</a>
+<a class="sourceLine" id="cb33-4" title="4"><span class="im">from</span> django.urls <span class="im">import</span> path</a>
+<a class="sourceLine" id="cb33-5" title="5"></a>
+<a class="sourceLine" id="cb33-6" title="6"><span class="im">from</span> apps.endpoints.urls <span class="im">import</span> urlpatterns <span class="im">as</span> endpoints_urlpatterns</a>
+<a class="sourceLine" id="cb33-7" title="7"></a>
+<a class="sourceLine" id="cb33-8" title="8">urlpatterns <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb33-9" title="9">    path(<span class="st">'admin/'</span>, admin.site.urls),</a>
+<a class="sourceLine" id="cb33-10" title="10">]</a>
+<a class="sourceLine" id="cb33-11" title="11"></a>
+<a class="sourceLine" id="cb33-12" title="12">urlpatterns <span class="op">+=</span> endpoints_urlpatterns</a></code></pre></div>
+<h3 id="run-the-server">Run the server</h3>
+<p>We have added many new things, let’s check if all works.</p>
+<p>Please run the server:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb34-1" title="1"><span class="co"># in backend/server</span></a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="ex">python</span> manage.py runserver</a></code></pre></div>
+<p>and open <code>http://127.0.0.1:8000/api/v1/</code> in the web browser. You should see DRF view (image <a href="#fig:5">5</a>).</p>
+<div id="fig:5" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/04_drf_init.png" alt="Figure&nbsp;5: Default Django REST Framework view"><figcaption><span>Figure&nbsp;5:</span> Default Django REST Framework view</figcaption>
+</figure>
+</div>
+<p>The DRF provides nice interface, so you can click on any URL and 
+check the objects (for example on 
+http://127.0.0.1:8000/api/v1/endpoints). You should see empty list for 
+all objects, because we didn’t add anything there yet. We will add ML 
+algorithms and endpoints in the next chapter.</p>
+<h3 id="add-code-to-the-repository">Add code to the repository</h3>
+<p>The last step in this chapter is to add a new code to the repository.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb35-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb35-2" title="2"><span class="fu">git</span> add apps/endpoints</a>
+<a class="sourceLine" id="cb35-3" title="3"><span class="fu">git</span> commit -am <span class="st">"endpoints models"</span></a>
+<a class="sourceLine" id="cb35-4" title="4"><span class="fu">git</span> push</a></code></pre></div>
+<h1 id="add-ml-algorithms-to-the-server-code">Add ML algorithms to the server code</h1>
+<p>So far you have accomplished:</p>
+<ul>
+<li>train two ML algorithms,</li>
+<li>create Django server with database models and REST API endpoints which will represent ML endpoints, models and requests.</li>
+</ul>
+<p>What you will learn in this chapter:</p>
+<ul>
+<li>create ML code in the server,</li>
+<li>write ML algorithms registry,</li>
+<li>add ML algorithms to the server.</li>
+</ul>
+<h2 id="ml-code-in-the-server">ML code in the server</h2>
+<p>In the <a href="#build-ml-algorithms">chapter 3</a> we have created 
+two ML algorithms (with Random Forest and Extra Trees). They were 
+implemented in the Jupyter notebook. Now, we will write code on the 
+server-side that will use previously trained algorithms. In this chapter
+ we will include on server-side only the Random Forest algorithm (for 
+simplicity).</p>
+<p>In the directory <code>backend/server/apps</code> let’s create new directory <code>ml</code> to keep all ML related code and <code>income_classifier</code> directory to keep our income classifiers.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb36-1" title="1"><span class="co"># please run in backend/server/apps</span></a>
+<a class="sourceLine" id="cb36-2" title="2"><span class="fu">mkdir</span> ml</a>
+<a class="sourceLine" id="cb36-3" title="3"><span class="fu">mkdir</span> ml/income_classifier</a></code></pre></div>
+<p>In <code>income_classifier</code> directory let’s add new file <code>random_forest.py</code> and empty file <code>__init__.py</code>.</p>
+<p>In <code>random_forest.py</code> file we will implement the ML algorithm code.</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb37-1" title="1"><span class="co"># file backend/server/apps/ml/income_classifier/random_forest.py</span></a>
+<a class="sourceLine" id="cb37-2" title="2"><span class="im">import</span> joblib</a>
+<a class="sourceLine" id="cb37-3" title="3"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
+<a class="sourceLine" id="cb37-4" title="4"></a>
+<a class="sourceLine" id="cb37-5" title="5"><span class="kw">class</span> RandomForestClassifier:</a>
+<a class="sourceLine" id="cb37-6" title="6">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb37-7" title="7">        path_to_artifacts <span class="op">=</span> <span class="st">"../../research/"</span></a>
+<a class="sourceLine" id="cb37-8" title="8">        <span class="va">self</span>.values_fill_missing <span class="op">=</span>  joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"train_mode.joblib"</span>)</a>
+<a class="sourceLine" id="cb37-9" title="9">        <span class="va">self</span>.encoders <span class="op">=</span> joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"encoders.joblib"</span>)</a>
+<a class="sourceLine" id="cb37-10" title="10">        <span class="va">self</span>.model <span class="op">=</span> joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"random_forest.joblib"</span>)</a>
+<a class="sourceLine" id="cb37-11" title="11"></a>
+<a class="sourceLine" id="cb37-12" title="12">    <span class="kw">def</span> preprocessing(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb37-13" title="13">        <span class="co"># JSON to pandas DataFrame</span></a>
+<a class="sourceLine" id="cb37-14" title="14">        input_data <span class="op">=</span> pd.DataFrame(input_data, index<span class="op">=</span>[<span class="dv">0</span>])</a>
+<a class="sourceLine" id="cb37-15" title="15">        <span class="co"># fill missing values</span></a>
+<a class="sourceLine" id="cb37-16" title="16">        input_data.fillna(<span class="va">self</span>.values_fill_missing)</a>
+<a class="sourceLine" id="cb37-17" title="17">        <span class="co"># convert categoricals</span></a>
+<a class="sourceLine" id="cb37-18" title="18">        <span class="cf">for</span> column <span class="kw">in</span> [</a>
+<a class="sourceLine" id="cb37-19" title="19">            <span class="st">"workclass"</span>,</a>
+<a class="sourceLine" id="cb37-20" title="20">            <span class="st">"education"</span>,</a>
+<a class="sourceLine" id="cb37-21" title="21">            <span class="st">"marital-status"</span>,</a>
+<a class="sourceLine" id="cb37-22" title="22">            <span class="st">"occupation"</span>,</a>
+<a class="sourceLine" id="cb37-23" title="23">            <span class="st">"relationship"</span>,</a>
+<a class="sourceLine" id="cb37-24" title="24">            <span class="st">"race"</span>,</a>
+<a class="sourceLine" id="cb37-25" title="25">            <span class="st">"sex"</span>,</a>
+<a class="sourceLine" id="cb37-26" title="26">            <span class="st">"native-country"</span>,</a>
+<a class="sourceLine" id="cb37-27" title="27">        ]:</a>
+<a class="sourceLine" id="cb37-28" title="28">            categorical_convert <span class="op">=</span> <span class="va">self</span>.encoders[column]</a>
+<a class="sourceLine" id="cb37-29" title="29">            input_data[column] <span class="op">=</span> categorical_convert.transform(input_data[column])</a>
+<a class="sourceLine" id="cb37-30" title="30"></a>
+<a class="sourceLine" id="cb37-31" title="31">        <span class="cf">return</span> input_data</a>
+<a class="sourceLine" id="cb37-32" title="32"></a>
+<a class="sourceLine" id="cb37-33" title="33">    <span class="kw">def</span> predict(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb37-34" title="34">        <span class="cf">return</span> <span class="va">self</span>.model.predict_proba(input_data)</a>
+<a class="sourceLine" id="cb37-35" title="35"></a>
+<a class="sourceLine" id="cb37-36" title="36">    <span class="kw">def</span> postprocessing(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb37-37" title="37">        label <span class="op">=</span> <span class="st">"&lt;=50K"</span></a>
+<a class="sourceLine" id="cb37-38" title="38">        <span class="cf">if</span> input_data[<span class="dv">1</span>] <span class="op">&gt;</span> <span class="fl">0.5</span>:</a>
+<a class="sourceLine" id="cb37-39" title="39">            label <span class="op">=</span> <span class="st">"&gt;50K"</span></a>
+<a class="sourceLine" id="cb37-40" title="40">        <span class="cf">return</span> {<span class="st">"probability"</span>: input_data[<span class="dv">1</span>], <span class="st">"label"</span>: label, <span class="st">"status"</span>: <span class="st">"OK"</span>}</a>
+<a class="sourceLine" id="cb37-41" title="41"></a>
+<a class="sourceLine" id="cb37-42" title="42">    <span class="kw">def</span> compute_prediction(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb37-43" title="43">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb37-44" title="44">            input_data <span class="op">=</span> <span class="va">self</span>.preprocessing(input_data)</a>
+<a class="sourceLine" id="cb37-45" title="45">            prediction <span class="op">=</span> <span class="va">self</span>.predict(input_data)[<span class="dv">0</span>]  <span class="co"># only one sample</span></a>
+<a class="sourceLine" id="cb37-46" title="46">            prediction <span class="op">=</span> <span class="va">self</span>.postprocessing(prediction)</a>
+<a class="sourceLine" id="cb37-47" title="47">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb37-48" title="48">            <span class="cf">return</span> {<span class="st">"status"</span>: <span class="st">"Error"</span>, <span class="st">"message"</span>: <span class="bu">str</span>(e)}</a>
+<a class="sourceLine" id="cb37-49" title="49"></a>
+<a class="sourceLine" id="cb37-50" title="50">        <span class="cf">return</span> prediction</a></code></pre></div>
+<p>The <code>RandomForestClassifier</code> algorithm has five methods:</p>
+<ul>
+<li><code>__init__</code> - the constructor which loads preprocessing objects and Random Forest object (created with Jupyter notebook)</li>
+<li><code>preprocessing</code> - the method which takes as input JSON data, converts it to Pandas DataFrame and apply pre-processing</li>
+<li><code>predict</code> - the method that calls ML for computing predictions on prepared data,</li>
+<li><code>postprocessing</code> - the method that applies post-processing on prediction values,</li>
+<li><code>compute_prediction</code> - the method that combines: <code>preprocessing</code>, <code>predict</code> and <code>postprocessing</code> and returns JSON object with the response.</li>
+</ul>
+<p>To enable our code in the Django we need to add <code>ml</code> app to <code>INSTALLED_APPS</code> in <code>backend/server/server/settings.py</code>:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb38-1" title="1">INSTALLED_APPS <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb38-2" title="2">    <span class="st">'django.contrib.admin'</span>,</a>
+<a class="sourceLine" id="cb38-3" title="3">    <span class="st">'django.contrib.auth'</span>,</a>
+<a class="sourceLine" id="cb38-4" title="4">    <span class="st">'django.contrib.contenttypes'</span>,</a>
+<a class="sourceLine" id="cb38-5" title="5">    <span class="st">'django.contrib.sessions'</span>,</a>
+<a class="sourceLine" id="cb38-6" title="6">    <span class="st">'django.contrib.messages'</span>,</a>
+<a class="sourceLine" id="cb38-7" title="7">    <span class="st">'django.contrib.staticfiles'</span>,</a>
+<a class="sourceLine" id="cb38-8" title="8">    <span class="st">'rest_framework'</span>,</a>
+<a class="sourceLine" id="cb38-9" title="9">    <span class="co"># apps</span></a>
+<a class="sourceLine" id="cb38-10" title="10">    <span class="st">'apps.endpoints'</span>,</a>
+<a class="sourceLine" id="cb38-11" title="11">    <span class="st">'apps.ml'</span></a>
+<a class="sourceLine" id="cb38-12" title="12">]</a></code></pre></div>
+<h3 id="ml-code-tests">ML code tests</h3>
+<p>Let’s write a test case that will check if our Random Forest 
+algorithm is working as expected. For testing, I will use one row from 
+train data and check if the prediction is correct.</p>
+<p>Please add two files into <code>ml</code> directory: empty <code>__init__.py</code> file and <code>tests.py</code> file with the following code:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb39-1" title="1"><span class="im">from</span> django.test <span class="im">import</span> TestCase</a>
+<a class="sourceLine" id="cb39-2" title="2"></a>
+<a class="sourceLine" id="cb39-3" title="3"><span class="im">from</span> apps.ml.income_classifier.random_forest <span class="im">import</span> RandomForestClassifier</a>
+<a class="sourceLine" id="cb39-4" title="4"></a>
+<a class="sourceLine" id="cb39-5" title="5"><span class="kw">class</span> MLTests(TestCase):</a>
+<a class="sourceLine" id="cb39-6" title="6">    <span class="kw">def</span> test_rf_algorithm(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb39-7" title="7">        input_data <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb39-8" title="8">            <span class="st">"age"</span>: <span class="dv">37</span>,</a>
+<a class="sourceLine" id="cb39-9" title="9">            <span class="st">"workclass"</span>: <span class="st">"Private"</span>,</a>
+<a class="sourceLine" id="cb39-10" title="10">            <span class="st">"fnlwgt"</span>: <span class="dv">34146</span>,</a>
+<a class="sourceLine" id="cb39-11" title="11">            <span class="st">"education"</span>: <span class="st">"HS-grad"</span>,</a>
+<a class="sourceLine" id="cb39-12" title="12">            <span class="st">"education-num"</span>: <span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb39-13" title="13">            <span class="st">"marital-status"</span>: <span class="st">"Married-civ-spouse"</span>,</a>
+<a class="sourceLine" id="cb39-14" title="14">            <span class="st">"occupation"</span>: <span class="st">"Craft-repair"</span>,</a>
+<a class="sourceLine" id="cb39-15" title="15">            <span class="st">"relationship"</span>: <span class="st">"Husband"</span>,</a>
+<a class="sourceLine" id="cb39-16" title="16">            <span class="st">"race"</span>: <span class="st">"White"</span>,</a>
+<a class="sourceLine" id="cb39-17" title="17">            <span class="st">"sex"</span>: <span class="st">"Male"</span>,</a>
+<a class="sourceLine" id="cb39-18" title="18">            <span class="st">"capital-gain"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb39-19" title="19">            <span class="st">"capital-loss"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb39-20" title="20">            <span class="st">"hours-per-week"</span>: <span class="dv">68</span>,</a>
+<a class="sourceLine" id="cb39-21" title="21">            <span class="st">"native-country"</span>: <span class="st">"United-States"</span></a>
+<a class="sourceLine" id="cb39-22" title="22">        }</a>
+<a class="sourceLine" id="cb39-23" title="23">        my_alg <span class="op">=</span> RandomForestClassifier()</a>
+<a class="sourceLine" id="cb39-24" title="24">        response <span class="op">=</span> my_alg.compute_prediction(input_data)</a>
+<a class="sourceLine" id="cb39-25" title="25">        <span class="va">self</span>.assertEqual(<span class="st">'OK'</span>, response[<span class="st">'status'</span>])</a>
+<a class="sourceLine" id="cb39-26" title="26">        <span class="va">self</span>.assertTrue(<span class="st">'label'</span> <span class="kw">in</span> response)</a>
+<a class="sourceLine" id="cb39-27" title="27">        <span class="va">self</span>.assertEqual(<span class="st">'&lt;=50K'</span>, response[<span class="st">'label'</span>])</a></code></pre></div>
+<p>The above test is:</p>
+<ul>
+<li>constructing an input JSON data object,</li>
+<li>initializing ML algorithm,</li>
+<li>computing ML prediction and checking the prediction outcome.</li>
+</ul>
+<p>To run Django tests run the following command:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb40-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb40-2" title="2"><span class="ex">python</span> manage.py test apps.ml.tests</a></code></pre></div>
+<p>You should see that 1 test was run.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb41-1" title="1"><span class="ex">System</span> check identified no issues (0 silenced)<span class="ex">.</span></a>
+<a class="sourceLine" id="cb41-2" title="2"><span class="ex">.</span></a>
+<a class="sourceLine" id="cb41-3" title="3"><span class="ex">----------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb41-4" title="4"><span class="ex">Ran</span> 1 test in 0.661s</a>
+<a class="sourceLine" id="cb41-5" title="5"></a>
+<a class="sourceLine" id="cb41-6" title="6"><span class="ex">OK</span></a></code></pre></div>
+<h2 id="algorithms-registry">Algorithms registry</h2>
+<p>We have the ML code ready and tested. We need to connect it with the 
+server code. For this, I will create the ML registry object, that will 
+keep information about available algorithms and corresponding endpoints.</p>
+<p>Let’s add <code>registry.py</code> file in the <code>backend/server/apps/ml/</code> directory.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb42-1" title="1"><span class="co"># file backend/server/apps/ml/registry.py</span></a>
+<a class="sourceLine" id="cb42-2" title="2"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> Endpoint</a>
+<a class="sourceLine" id="cb42-3" title="3"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithm</a>
+<a class="sourceLine" id="cb42-4" title="4"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> MLAlgorithmStatus</a>
+<a class="sourceLine" id="cb42-5" title="5"></a>
+<a class="sourceLine" id="cb42-6" title="6"><span class="kw">class</span> MLRegistry:</a>
+<a class="sourceLine" id="cb42-7" title="7">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb42-8" title="8">        <span class="va">self</span>.endpoints <span class="op">=</span> {}</a>
+<a class="sourceLine" id="cb42-9" title="9"></a>
+<a class="sourceLine" id="cb42-10" title="10">    <span class="kw">def</span> add_algorithm(<span class="va">self</span>, endpoint_name, algorithm_object, algorithm_name,</a>
+<a class="sourceLine" id="cb42-11" title="11">                    algorithm_status, algorithm_version, owner,</a>
+<a class="sourceLine" id="cb42-12" title="12">                    algorithm_description, algorithm_code):</a>
+<a class="sourceLine" id="cb42-13" title="13">        <span class="co"># get endpoint</span></a>
+<a class="sourceLine" id="cb42-14" title="14">        endpoint, _ <span class="op">=</span> Endpoint.objects.get_or_create(name<span class="op">=</span>endpoint_name, owner<span class="op">=</span>owner)</a>
+<a class="sourceLine" id="cb42-15" title="15"></a>
+<a class="sourceLine" id="cb42-16" title="16">        <span class="co"># get algorithm</span></a>
+<a class="sourceLine" id="cb42-17" title="17">        database_object, algorithm_created <span class="op">=</span> MLAlgorithm.objects.get_or_create(</a>
+<a class="sourceLine" id="cb42-18" title="18">                name<span class="op">=</span>algorithm_name,</a>
+<a class="sourceLine" id="cb42-19" title="19">                description<span class="op">=</span>algorithm_description,</a>
+<a class="sourceLine" id="cb42-20" title="20">                code<span class="op">=</span>algorithm_code,</a>
+<a class="sourceLine" id="cb42-21" title="21">                version<span class="op">=</span>algorithm_version,</a>
+<a class="sourceLine" id="cb42-22" title="22">                owner<span class="op">=</span>owner,</a>
+<a class="sourceLine" id="cb42-23" title="23">                parent_endpoint<span class="op">=</span>endpoint)</a>
+<a class="sourceLine" id="cb42-24" title="24">        <span class="cf">if</span> algorithm_created:</a>
+<a class="sourceLine" id="cb42-25" title="25">            status <span class="op">=</span> MLAlgorithmStatus(status <span class="op">=</span> algorithm_status,</a>
+<a class="sourceLine" id="cb42-26" title="26">                                        created_by <span class="op">=</span> owner,</a>
+<a class="sourceLine" id="cb42-27" title="27">                                        parent_mlalgorithm <span class="op">=</span> database_object,</a>
+<a class="sourceLine" id="cb42-28" title="28">                                        active <span class="op">=</span> <span class="va">True</span>)</a>
+<a class="sourceLine" id="cb42-29" title="29">            status.save()</a>
+<a class="sourceLine" id="cb42-30" title="30"></a>
+<a class="sourceLine" id="cb42-31" title="31">        <span class="co"># add to registry</span></a>
+<a class="sourceLine" id="cb42-32" title="32">        <span class="va">self</span>.endpoints[database_object.<span class="bu">id</span>] <span class="op">=</span> algorithm_object</a></code></pre></div>
+<p>The registry keeps simple <code>dict</code> object with a mapping of algorithm id to algorithm object.</p>
+<p>To check if the code is working as expected, we can add test case in the <code>backend/server/apps/ml/tests.py</code> file:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb43-1" title="1"><span class="co"># add at the beginning of the file:</span></a>
+<a class="sourceLine" id="cb43-2" title="2"><span class="im">import</span> inspect</a>
+<a class="sourceLine" id="cb43-3" title="3"><span class="im">from</span> apps.ml.registry <span class="im">import</span> MLRegistry</a>
+<a class="sourceLine" id="cb43-4" title="4"></a>
+<a class="sourceLine" id="cb43-5" title="5"><span class="co"># ...</span></a>
+<a class="sourceLine" id="cb43-6" title="6"><span class="co"># the rest of the code</span></a>
+<a class="sourceLine" id="cb43-7" title="7"><span class="co"># ...</span></a>
+<a class="sourceLine" id="cb43-8" title="8"></a>
+<a class="sourceLine" id="cb43-9" title="9"><span class="co"># add below method to MLTests class:</span></a>
+<a class="sourceLine" id="cb43-10" title="10">    <span class="kw">def</span> test_registry(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb43-11" title="11">        registry <span class="op">=</span> MLRegistry()</a>
+<a class="sourceLine" id="cb43-12" title="12">        <span class="va">self</span>.assertEqual(<span class="bu">len</span>(registry.endpoints), <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb43-13" title="13">        endpoint_name <span class="op">=</span> <span class="st">"income_classifier"</span></a>
+<a class="sourceLine" id="cb43-14" title="14">        algorithm_object <span class="op">=</span> RandomForestClassifier()</a>
+<a class="sourceLine" id="cb43-15" title="15">        algorithm_name <span class="op">=</span> <span class="st">"random forest"</span></a>
+<a class="sourceLine" id="cb43-16" title="16">        algorithm_status <span class="op">=</span> <span class="st">"production"</span></a>
+<a class="sourceLine" id="cb43-17" title="17">        algorithm_version <span class="op">=</span> <span class="st">"0.0.1"</span></a>
+<a class="sourceLine" id="cb43-18" title="18">        algorithm_owner <span class="op">=</span> <span class="st">"Piotr"</span></a>
+<a class="sourceLine" id="cb43-19" title="19">        algorithm_description <span class="op">=</span> <span class="st">"Random Forest with simple pre- and post-processing"</span></a>
+<a class="sourceLine" id="cb43-20" title="20">        algorithm_code <span class="op">=</span> inspect.getsource(RandomForestClassifier)</a>
+<a class="sourceLine" id="cb43-21" title="21">        <span class="co"># add to registry</span></a>
+<a class="sourceLine" id="cb43-22" title="22">        registry.add_algorithm(endpoint_name, algorithm_object, algorithm_name,</a>
+<a class="sourceLine" id="cb43-23" title="23">                    algorithm_status, algorithm_version, algorithm_owner,</a>
+<a class="sourceLine" id="cb43-24" title="24">                    algorithm_description, algorithm_code)</a>
+<a class="sourceLine" id="cb43-25" title="25">        <span class="co"># there should be one endpoint available</span></a>
+<a class="sourceLine" id="cb43-26" title="26">        <span class="va">self</span>.assertEqual(<span class="bu">len</span>(registry.endpoints), <span class="dv">1</span>)</a></code></pre></div>
+<p>This simple test adds a ML algorithm to the registry. To run tests:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb44-1" title="1"><span class="co"># please run in backend/server</span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="ex">python</span> manage.py test apps.ml.tests</a></code></pre></div>
+<p>Tests output:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb45-1" title="1"><span class="ex">System</span> check identified no issues (0 silenced)<span class="ex">.</span></a>
+<a class="sourceLine" id="cb45-2" title="2"><span class="ex">..</span></a>
+<a class="sourceLine" id="cb45-3" title="3"><span class="ex">----------------------------------------------------------------------</span></a>
+<a class="sourceLine" id="cb45-4" title="4"><span class="ex">Ran</span> 2 tests in 0.679s</a>
+<a class="sourceLine" id="cb45-5" title="5"></a>
+<a class="sourceLine" id="cb45-6" title="6"><span class="ex">OK</span></a></code></pre></div>
+<h2 id="add-ml-algorithms-to-the-registry">Add ML algorithms to the registry</h2>
+<p>The registry code is ready, we need to specify one place in the 
+server code which will add ML algorithms to the registry when the server
+ is starting. The best place to do it is <code>backend/server/server/wsgi.py</code> file. Please set the following code in the file:</p>
+<div class="sourceCode" id="cb46"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb46-1" title="1"><span class="co"># file backend/server/server/wsgi.py</span></a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb46-3" title="3"><span class="im">from</span> django.core.wsgi <span class="im">import</span> get_wsgi_application</a>
+<a class="sourceLine" id="cb46-4" title="4">os.environ.setdefault(<span class="st">'DJANGO_SETTINGS_MODULE'</span>, <span class="st">'server.settings'</span>)</a>
+<a class="sourceLine" id="cb46-5" title="5">application <span class="op">=</span> get_wsgi_application()</a>
+<a class="sourceLine" id="cb46-6" title="6"></a>
+<a class="sourceLine" id="cb46-7" title="7"><span class="co"># ML registry</span></a>
+<a class="sourceLine" id="cb46-8" title="8"><span class="im">import</span> inspect</a>
+<a class="sourceLine" id="cb46-9" title="9"><span class="im">from</span> apps.ml.registry <span class="im">import</span> MLRegistry</a>
+<a class="sourceLine" id="cb46-10" title="10"><span class="im">from</span> apps.ml.income_classifier.random_forest <span class="im">import</span> RandomForestClassifier</a>
+<a class="sourceLine" id="cb46-11" title="11"></a>
+<a class="sourceLine" id="cb46-12" title="12"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb46-13" title="13">    registry <span class="op">=</span> MLRegistry() <span class="co"># create ML registry</span></a>
+<a class="sourceLine" id="cb46-14" title="14">    <span class="co"># Random Forest classifier</span></a>
+<a class="sourceLine" id="cb46-15" title="15">    rf <span class="op">=</span> RandomForestClassifier()</a>
+<a class="sourceLine" id="cb46-16" title="16">    <span class="co"># add to ML registry</span></a>
+<a class="sourceLine" id="cb46-17" title="17">    registry.add_algorithm(endpoint_name<span class="op">=</span><span class="st">"income_classifier"</span>,</a>
+<a class="sourceLine" id="cb46-18" title="18">                            algorithm_object<span class="op">=</span>rf,</a>
+<a class="sourceLine" id="cb46-19" title="19">                            algorithm_name<span class="op">=</span><span class="st">"random forest"</span>,</a>
+<a class="sourceLine" id="cb46-20" title="20">                            algorithm_status<span class="op">=</span><span class="st">"production"</span>,</a>
+<a class="sourceLine" id="cb46-21" title="21">                            algorithm_version<span class="op">=</span><span class="st">"0.0.1"</span>,</a>
+<a class="sourceLine" id="cb46-22" title="22">                            owner<span class="op">=</span><span class="st">"Piotr"</span>,</a>
+<a class="sourceLine" id="cb46-23" title="23">                            algorithm_description<span class="op">=</span><span class="st">"Random Forest with simple pre- and post-processing"</span>,</a>
+<a class="sourceLine" id="cb46-24" title="24">                            algorithm_code<span class="op">=</span>inspect.getsource(RandomForestClassifier))</a>
+<a class="sourceLine" id="cb46-25" title="25"></a>
+<a class="sourceLine" id="cb46-26" title="26"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb46-27" title="27">    <span class="bu">print</span>(<span class="st">"Exception while loading the algorithms to the registry,"</span>, <span class="bu">str</span>(e))</a></code></pre></div>
+<p>After starting the server with:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb47-1" title="1"><span class="ex">python</span> manage.py runserver</a></code></pre></div>
+<p>you can check the endpoints and ML algorithms in the browser. At the URL: <code>http://127.0.0.1:8000/api/v1/endpoints</code> you can check endpoints (image <a href="#fig:6">6</a>), and at <code>http://127.0.0.1:8000/api/v1/mlalgorithms</code> you can check algorithms (image <a href="#fig:7">7</a>).</p>
+<div id="fig:6" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/05_endpoint_example.png" alt="Figure&nbsp;6: List of endpoints defined in the service"><figcaption><span>Figure&nbsp;6:</span> List of endpoints defined in the service</figcaption>
+</figure>
+</div>
+<div id="fig:7" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/05_mlalgorithm_example.png" alt="Figure&nbsp;7: List of ML algorithms defined in the service"><figcaption><span>Figure&nbsp;7:</span> List of ML algorithms defined in the service</figcaption>
+</figure>
+</div>
+<h3 id="add-code-to-repository">Add code to repository</h3>
+<p>We need to commit a new code to the repository.</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb48-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb48-2" title="2"><span class="fu">git</span> add apps/ml/</a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="fu">git</span> commit -am <span class="st">"add ml code"</span></a>
+<a class="sourceLine" id="cb48-4" title="4"><span class="fu">git</span> push</a></code></pre></div>
+<h3 id="whats-next">What’s next?</h3>
+<p>We have our ML algorithm in the database and we can access 
+information about it with REST API, but how to do predictions? This will
+ be the subject of the next chapter.</p>
+<h1 id="making-predictions">Making predictions</h1>
+<p>What have you learned already:</p>
+<ul>
+<li>you have created two ML algorithms in Jupyter notebook,</li>
+<li>you have created Django app with database models and REST API,</li>
+<li>you have added the ML code to the server code and created a ML registry.</li>
+</ul>
+<p>What you will learn in this chapter:</p>
+<ul>
+<li>you will add a view for handling requests in the server and forwarding them to ML code,</li>
+<li>you will add API URL to the view,</li>
+<li>you will write tests for predictions.</li>
+</ul>
+<h2 id="predictions-view">Predictions view</h2>
+<p>Firstly, we will create the view for predictions that can accept POST
+ requests with JSON data and forward it to the correct ML algorithm.</p>
+<p>In <code>backend/server/apps/endpoints/views.py</code> we need to add the following code:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb49-1" title="1"><span class="co"># please add imports</span></a>
+<a class="sourceLine" id="cb49-2" title="2"><span class="im">import</span> json</a>
+<a class="sourceLine" id="cb49-3" title="3"><span class="im">from</span> numpy.random <span class="im">import</span> rand</a>
+<a class="sourceLine" id="cb49-4" title="4"><span class="im">from</span> rest_framework <span class="im">import</span> views, status</a>
+<a class="sourceLine" id="cb49-5" title="5"><span class="im">from</span> rest_framework.response <span class="im">import</span> Response</a>
+<a class="sourceLine" id="cb49-6" title="6"><span class="im">from</span> apps.ml.registry <span class="im">import</span> MLRegistry</a>
+<a class="sourceLine" id="cb49-7" title="7"><span class="im">from</span> server.wsgi <span class="im">import</span> registry</a>
+<a class="sourceLine" id="cb49-8" title="8"></a>
+<a class="sourceLine" id="cb49-9" title="9"><span class="co">'''</span></a>
+<a class="sourceLine" id="cb49-10" title="10"><span class="co">... the rest of the backend/server/apps/endpoints/views.py file ...</span></a>
+<a class="sourceLine" id="cb49-11" title="11"><span class="co">'''</span></a>
+<a class="sourceLine" id="cb49-12" title="12"></a>
+<a class="sourceLine" id="cb49-13" title="13"><span class="kw">class</span> PredictView(views.APIView):</a>
+<a class="sourceLine" id="cb49-14" title="14">    <span class="kw">def</span> post(<span class="va">self</span>, request, endpoint_name, <span class="bu">format</span><span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb49-15" title="15"></a>
+<a class="sourceLine" id="cb49-16" title="16">        algorithm_status <span class="op">=</span> <span class="va">self</span>.request.query_params.get(<span class="st">"status"</span>, <span class="st">"production"</span>)</a>
+<a class="sourceLine" id="cb49-17" title="17">        algorithm_version <span class="op">=</span> <span class="va">self</span>.request.query_params.get(<span class="st">"version"</span>)</a>
+<a class="sourceLine" id="cb49-18" title="18"></a>
+<a class="sourceLine" id="cb49-19" title="19">        algs <span class="op">=</span> MLAlgorithm.objects.<span class="bu">filter</span>(parent_endpoint__name <span class="op">=</span> endpoint_name, status__status <span class="op">=</span> algorithm_status, status__active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb49-20" title="20"></a>
+<a class="sourceLine" id="cb49-21" title="21">        <span class="cf">if</span> algorithm_version <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb49-22" title="22">            algs <span class="op">=</span> algs.<span class="bu">filter</span>(version <span class="op">=</span> algorithm_version)</a>
+<a class="sourceLine" id="cb49-23" title="23"></a>
+<a class="sourceLine" id="cb49-24" title="24">        <span class="cf">if</span> <span class="bu">len</span>(algs) <span class="op">==</span> <span class="dv">0</span>:</a>
+<a class="sourceLine" id="cb49-25" title="25">            <span class="cf">return</span> Response(</a>
+<a class="sourceLine" id="cb49-26" title="26">                {<span class="st">"status"</span>: <span class="st">"Error"</span>, <span class="st">"message"</span>: <span class="st">"ML algorithm is not available"</span>},</a>
+<a class="sourceLine" id="cb49-27" title="27">                status<span class="op">=</span>status.HTTP_400_BAD_REQUEST,</a>
+<a class="sourceLine" id="cb49-28" title="28">            )</a>
+<a class="sourceLine" id="cb49-29" title="29">        <span class="cf">if</span> <span class="bu">len</span>(algs) <span class="op">!=</span> <span class="dv">1</span> <span class="kw">and</span> algorithm_status <span class="op">!=</span> <span class="st">"ab_testing"</span>:</a>
+<a class="sourceLine" id="cb49-30" title="30">            <span class="cf">return</span> Response(</a>
+<a class="sourceLine" id="cb49-31" title="31">                {<span class="st">"status"</span>: <span class="st">"Error"</span>, <span class="st">"message"</span>: <span class="st">"ML algorithm selection is ambiguous. Please specify algorithm version."</span>},</a>
+<a class="sourceLine" id="cb49-32" title="32">                status<span class="op">=</span>status.HTTP_400_BAD_REQUEST,</a>
+<a class="sourceLine" id="cb49-33" title="33">            )</a>
+<a class="sourceLine" id="cb49-34" title="34">        alg_index <span class="op">=</span> <span class="dv">0</span></a>
+<a class="sourceLine" id="cb49-35" title="35">        <span class="cf">if</span> algorithm_status <span class="op">==</span> <span class="st">"ab_testing"</span>:</a>
+<a class="sourceLine" id="cb49-36" title="36">            alg_index <span class="op">=</span> <span class="dv">0</span> <span class="cf">if</span> rand() <span class="op">&lt;</span> <span class="fl">0.5</span> <span class="cf">else</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb49-37" title="37"></a>
+<a class="sourceLine" id="cb49-38" title="38">        algorithm_object <span class="op">=</span> registry.endpoints[algs[alg_index].<span class="bu">id</span>]</a>
+<a class="sourceLine" id="cb49-39" title="39">        prediction <span class="op">=</span> algorithm_object.compute_prediction(request.data)</a>
+<a class="sourceLine" id="cb49-40" title="40"></a>
+<a class="sourceLine" id="cb49-41" title="41"></a>
+<a class="sourceLine" id="cb49-42" title="42">        label <span class="op">=</span> prediction[<span class="st">"label"</span>] <span class="cf">if</span> <span class="st">"label"</span> <span class="kw">in</span> prediction <span class="cf">else</span> <span class="st">"error"</span></a>
+<a class="sourceLine" id="cb49-43" title="43">        ml_request <span class="op">=</span> MLRequest(</a>
+<a class="sourceLine" id="cb49-44" title="44">            input_data<span class="op">=</span>json.dumps(request.data),</a>
+<a class="sourceLine" id="cb49-45" title="45">            full_response<span class="op">=</span>prediction,</a>
+<a class="sourceLine" id="cb49-46" title="46">            response<span class="op">=</span>label,</a>
+<a class="sourceLine" id="cb49-47" title="47">            feedback<span class="op">=</span><span class="st">""</span>,</a>
+<a class="sourceLine" id="cb49-48" title="48">            parent_mlalgorithm<span class="op">=</span>algs[alg_index],</a>
+<a class="sourceLine" id="cb49-49" title="49">        )</a>
+<a class="sourceLine" id="cb49-50" title="50">        ml_request.save()</a>
+<a class="sourceLine" id="cb49-51" title="51"></a>
+<a class="sourceLine" id="cb49-52" title="52">        prediction[<span class="st">"request_id"</span>] <span class="op">=</span> ml_request.<span class="bu">id</span></a>
+<a class="sourceLine" id="cb49-53" title="53"></a>
+<a class="sourceLine" id="cb49-54" title="54">        <span class="cf">return</span> Response(prediction)</a></code></pre></div>
+<p>Let’s add the URL for predictions. The file <code>backend/server/apps/endpoints/urls.py</code> should look like below:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb50-1" title="1"><span class="co"># file backend/server/apps/endpoints/urls.py</span></a>
+<a class="sourceLine" id="cb50-2" title="2"></a>
+<a class="sourceLine" id="cb50-3" title="3"><span class="im">from</span> django.conf.urls <span class="im">import</span> url, include</a>
+<a class="sourceLine" id="cb50-4" title="4"><span class="im">from</span> rest_framework.routers <span class="im">import</span> DefaultRouter</a>
+<a class="sourceLine" id="cb50-5" title="5"></a>
+<a class="sourceLine" id="cb50-6" title="6"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> EndpointViewSet</a>
+<a class="sourceLine" id="cb50-7" title="7"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLAlgorithmViewSet</a>
+<a class="sourceLine" id="cb50-8" title="8"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLRequestViewSet</a>
+<a class="sourceLine" id="cb50-9" title="9"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> PredictView <span class="co"># import PredictView</span></a>
+<a class="sourceLine" id="cb50-10" title="10"></a>
+<a class="sourceLine" id="cb50-11" title="11">router <span class="op">=</span> DefaultRouter(trailing_slash<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb50-12" title="12">router.register(<span class="vs">r"endpoints"</span>, EndpointViewSet, basename<span class="op">=</span><span class="st">"endpoints"</span>)</a>
+<a class="sourceLine" id="cb50-13" title="13">router.register(<span class="vs">r"mlalgorithms"</span>, MLAlgorithmViewSet, basename<span class="op">=</span><span class="st">"mlalgorithms"</span>)</a>
+<a class="sourceLine" id="cb50-14" title="14">router.register(<span class="vs">r"mlrequests"</span>, MLRequestViewSet, basename<span class="op">=</span><span class="st">"mlrequests"</span>)</a>
+<a class="sourceLine" id="cb50-15" title="15"></a>
+<a class="sourceLine" id="cb50-16" title="16">urlpatterns <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb50-17" title="17">    url(<span class="vs">r"^api/v1/"</span>, include(router.urls)),</a>
+<a class="sourceLine" id="cb50-18" title="18">    <span class="co"># add predict url</span></a>
+<a class="sourceLine" id="cb50-19" title="19">    url(</a>
+<a class="sourceLine" id="cb50-20" title="20">        <span class="vs">r"^api/v1/(?P&lt;endpoint_name&gt;.+)/predict$"</span>, PredictView.as_view(), name<span class="op">=</span><span class="st">"predict"</span></a>
+<a class="sourceLine" id="cb50-21" title="21">    ),</a>
+<a class="sourceLine" id="cb50-22" title="22">]</a></code></pre></div>
+<p>OK, let’s go into details. The <code>PredictView</code> accepts only POST requests. It is available at:</p>
+<p><code>https://&lt;server_ip/&gt;api/v1/&lt;endpoint_name&gt;/predict</code></p>
+<p>The <code>endpoint_name</code> is defining the endpoint that we are trying to reach. In our case (in local development) the ML algorithm can be accessed at:</p>
+<p><code>http://127.0.0.1:8000/api/v1/income_classifier/predict</code></p>
+<p>The <code>income_classifier</code> is the endpoint name (you can check endpoints at <code>http://127.0.0.1:8000/api/v1/endpoints</code>).</p>
+<p>What is more, you can specify algorithm status or version in the URL.
+ To specify status and version you need to include them in the URL, for 
+example:</p>
+<p><code>http://127.0.0.1:8000/api/v1/income_classifier/predict?status=testing&amp;version=1.1.1</code>.</p>
+<p>By default, there is a used <code>production</code> status.</p>
+<p>Based on endpoint name, status and version there is routing of the 
+request to correct ML algorithm. If the algorithm is selected properly, 
+the JSON request is forwarded to the algorithm object and prediction is 
+computed.</p>
+<p>In the code there is also included code that is drawing algorithm in 
+case A/B testing, we will go into details of this code in the next 
+chapter.</p>
+<p>To check if is it working please go to <code>http://127.0.0.1:8000/api/v1/income_classifier/predict</code> and provide example JSON input:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb51-1" title="1">{</a>
+<a class="sourceLine" id="cb51-2" title="2">    <span class="st">"age"</span>: <span class="dv">37</span>,</a>
+<a class="sourceLine" id="cb51-3" title="3">    <span class="st">"workclass"</span>: <span class="st">"Private"</span>,</a>
+<a class="sourceLine" id="cb51-4" title="4">    <span class="st">"fnlwgt"</span>: <span class="dv">34146</span>,</a>
+<a class="sourceLine" id="cb51-5" title="5">    <span class="st">"education"</span>: <span class="st">"HS-grad"</span>,</a>
+<a class="sourceLine" id="cb51-6" title="6">    <span class="st">"education-num"</span>: <span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb51-7" title="7">    <span class="st">"marital-status"</span>: <span class="st">"Married-civ-spouse"</span>,</a>
+<a class="sourceLine" id="cb51-8" title="8">    <span class="st">"occupation"</span>: <span class="st">"Craft-repair"</span>,</a>
+<a class="sourceLine" id="cb51-9" title="9">    <span class="st">"relationship"</span>: <span class="st">"Husband"</span>,</a>
+<a class="sourceLine" id="cb51-10" title="10">    <span class="st">"race"</span>: <span class="st">"White"</span>,</a>
+<a class="sourceLine" id="cb51-11" title="11">    <span class="st">"sex"</span>: <span class="st">"Male"</span>,</a>
+<a class="sourceLine" id="cb51-12" title="12">    <span class="st">"capital-gain"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb51-13" title="13">    <span class="st">"capital-loss"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb51-14" title="14">    <span class="st">"hours-per-week"</span>: <span class="dv">68</span>,</a>
+<a class="sourceLine" id="cb51-15" title="15">    <span class="st">"native-country"</span>: <span class="st">"United-States"</span></a>
+<a class="sourceLine" id="cb51-16" title="16">}</a></code></pre></div>
+<p>and click the <code>POST</code> button. You should see views like in images <a href="#fig:8">8</a> and <a href="#fig:9">9</a>.</p>
+<div id="fig:8" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/06-predict-1.png" alt="Figure&nbsp;8: Fill input data and click POST"><figcaption><span>Figure&nbsp;8:</span> Fill input data and click POST</figcaption>
+</figure>
+</div>
+<div id="fig:9" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/06-predict-2.png" alt="Figure&nbsp;9: Response of the ML algorithm"><figcaption><span>Figure&nbsp;9:</span> Response of the ML algorithm</figcaption>
+</figure>
+</div>
+<p><strong>Congratulations!!!</strong> If you see the result as on image <a href="#fig:9">9</a> it means that your ML web service is working correctly.</p>
+<p>Your response should look like this:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb52-1" title="1">{</a>
+<a class="sourceLine" id="cb52-2" title="2">    <span class="st">"probability"</span>: <span class="fl">0.04</span>,</a>
+<a class="sourceLine" id="cb52-3" title="3">    <span class="st">"label"</span>: <span class="st">"&lt;=50K"</span>,</a>
+<a class="sourceLine" id="cb52-4" title="4">    <span class="st">"status"</span>: <span class="st">"OK"</span>,</a>
+<a class="sourceLine" id="cb52-5" title="5">    <span class="st">"request_id"</span>: <span class="dv">1</span></a>
+<a class="sourceLine" id="cb52-6" title="6">}</a></code></pre></div>
+<p>The response contains <code>probability</code>, <code>label</code>, <code>status</code> and <code>request_id</code>. The <code>request_id</code> can be used later to provide feedback and ML algorithms monitoring.</p>
+<h2 id="add-tests-for-predictview">Add tests for PredictView</h2>
+<p>We will add a simple test case that will check if the predicted view correctly responds to correct data.</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb53-1" title="1"><span class="co"># file backend/server/endpoints/tests.py</span></a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="im">from</span> django.test <span class="im">import</span> TestCase</a>
+<a class="sourceLine" id="cb53-3" title="3"><span class="im">from</span> rest_framework.test <span class="im">import</span> APIClient</a>
+<a class="sourceLine" id="cb53-4" title="4"></a>
+<a class="sourceLine" id="cb53-5" title="5"><span class="kw">class</span> EndpointTests(TestCase):</a>
+<a class="sourceLine" id="cb53-6" title="6"></a>
+<a class="sourceLine" id="cb53-7" title="7">    <span class="kw">def</span> test_predict_view(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb53-8" title="8">        client <span class="op">=</span> APIClient()</a>
+<a class="sourceLine" id="cb53-9" title="9">        input_data <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb53-10" title="10">            <span class="st">"age"</span>: <span class="dv">37</span>,</a>
+<a class="sourceLine" id="cb53-11" title="11">            <span class="st">"workclass"</span>: <span class="st">"Private"</span>,</a>
+<a class="sourceLine" id="cb53-12" title="12">            <span class="st">"fnlwgt"</span>: <span class="dv">34146</span>,</a>
+<a class="sourceLine" id="cb53-13" title="13">            <span class="st">"education"</span>: <span class="st">"HS-grad"</span>,</a>
+<a class="sourceLine" id="cb53-14" title="14">            <span class="st">"education-num"</span>: <span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb53-15" title="15">            <span class="st">"marital-status"</span>: <span class="st">"Married-civ-spouse"</span>,</a>
+<a class="sourceLine" id="cb53-16" title="16">            <span class="st">"occupation"</span>: <span class="st">"Craft-repair"</span>,</a>
+<a class="sourceLine" id="cb53-17" title="17">            <span class="st">"relationship"</span>: <span class="st">"Husband"</span>,</a>
+<a class="sourceLine" id="cb53-18" title="18">            <span class="st">"race"</span>: <span class="st">"White"</span>,</a>
+<a class="sourceLine" id="cb53-19" title="19">            <span class="st">"sex"</span>: <span class="st">"Male"</span>,</a>
+<a class="sourceLine" id="cb53-20" title="20">            <span class="st">"capital-gain"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb53-21" title="21">            <span class="st">"capital-loss"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb53-22" title="22">            <span class="st">"hours-per-week"</span>: <span class="dv">68</span>,</a>
+<a class="sourceLine" id="cb53-23" title="23">            <span class="st">"native-country"</span>: <span class="st">"United-States"</span></a>
+<a class="sourceLine" id="cb53-24" title="24">        }</a>
+<a class="sourceLine" id="cb53-25" title="25">        classifier_url <span class="op">=</span> <span class="st">"/api/v1/income_classifier/predict"</span></a>
+<a class="sourceLine" id="cb53-26" title="26">        response <span class="op">=</span> client.post(classifier_url, input_data, <span class="bu">format</span><span class="op">=</span><span class="st">'json'</span>)</a>
+<a class="sourceLine" id="cb53-27" title="27">        <span class="va">self</span>.assertEqual(response.status_code, <span class="dv">200</span>)</a>
+<a class="sourceLine" id="cb53-28" title="28">        <span class="va">self</span>.assertEqual(response.data[<span class="st">"label"</span>], <span class="st">"&lt;=50K"</span>)</a>
+<a class="sourceLine" id="cb53-29" title="29">        <span class="va">self</span>.assertTrue(<span class="st">"request_id"</span> <span class="kw">in</span> response.data)</a>
+<a class="sourceLine" id="cb53-30" title="30">        <span class="va">self</span>.assertTrue(<span class="st">"status"</span> <span class="kw">in</span> response.data)</a></code></pre></div>
+<p>To run this test:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb54-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb54-2" title="2"><span class="ex">python</span> manage.py test apps.endpoints.tests</a></code></pre></div>
+<p>To run all tests:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb55-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb55-2" title="2"><span class="ex">python</span> manage.py test apps</a></code></pre></div>
+<p>Later more tests can be added, which will cover situations, where 
+wrong endpoints are selected in the URL or data, is in the wrong format.</p>
+<h3 id="add-code-to-the-repository-1">Add code to the repository</h3>
+<p>Before going to next chapter let’s add code to the repository:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb56-1" title="1"><span class="fu">git</span> commit -am <span class="st">"add predict view"</span></a>
+<a class="sourceLine" id="cb56-2" title="2"><span class="fu">git</span> push</a></code></pre></div>
+<p>In the next chapter, we will work on the A/B testing of ML algorithms.</p>
+<h1 id="ab-testing">A/B testing</h1>
+<p>What you already did:</p>
+<ul>
+<li>create ML algorithms,</li>
+<li>create Django web service, with ML code, database models for endpoints, algorithms, and requests.</li>
+<li>create predict view, which is routing requests to ML algorithms.</li>
+</ul>
+<p>What you will learn in this chapter:</p>
+<ul>
+<li>add a second ML algorithm (Extra Trees based) to the web service,</li>
+<li>create database model and REST API view for A/B tests information,</li>
+<li>write a python script for sending requests.</li>
+</ul>
+<h2 id="add-second-ml-algorithm">Add second ML algorithm</h2>
+<p>We will add code and tests for the Extra Trees based algorithm. Please add new file <code>extra_trees.py</code> in <code>backend/server/apps/ml/income_classifer</code> directory. (The code is very similar to <code>RandomForestClassifier</code> class but to keep it simple I just copy it and change the path for reading the model. There can be used inheritance here.).</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb57-1" title="1"><span class="co"># file backend/server/apps/ml/income_classifier/extra_trees.py</span></a>
+<a class="sourceLine" id="cb57-2" title="2"><span class="im">import</span> joblib</a>
+<a class="sourceLine" id="cb57-3" title="3"><span class="im">import</span> pandas <span class="im">as</span> pd</a>
+<a class="sourceLine" id="cb57-4" title="4"></a>
+<a class="sourceLine" id="cb57-5" title="5"><span class="kw">class</span> ExtraTreesClassifier:</a>
+<a class="sourceLine" id="cb57-6" title="6">    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb57-7" title="7">        path_to_artifacts <span class="op">=</span> <span class="st">"../../research/"</span></a>
+<a class="sourceLine" id="cb57-8" title="8">        <span class="va">self</span>.values_fill_missing <span class="op">=</span>  joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"train_mode.joblib"</span>)</a>
+<a class="sourceLine" id="cb57-9" title="9">        <span class="va">self</span>.encoders <span class="op">=</span> joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"encoders.joblib"</span>)</a>
+<a class="sourceLine" id="cb57-10" title="10">        <span class="va">self</span>.model <span class="op">=</span> joblib.load(path_to_artifacts <span class="op">+</span> <span class="st">"extra_trees.joblib"</span>)</a>
+<a class="sourceLine" id="cb57-11" title="11"></a>
+<a class="sourceLine" id="cb57-12" title="12">    <span class="kw">def</span> preprocessing(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb57-13" title="13">        <span class="co"># JSON to pandas DataFrame</span></a>
+<a class="sourceLine" id="cb57-14" title="14">        input_data <span class="op">=</span> pd.DataFrame(input_data, index<span class="op">=</span>[<span class="dv">0</span>])</a>
+<a class="sourceLine" id="cb57-15" title="15">        <span class="co"># fill missing values</span></a>
+<a class="sourceLine" id="cb57-16" title="16">        input_data.fillna(<span class="va">self</span>.values_fill_missing)</a>
+<a class="sourceLine" id="cb57-17" title="17">        <span class="co"># convert categoricals</span></a>
+<a class="sourceLine" id="cb57-18" title="18">        <span class="cf">for</span> column <span class="kw">in</span> [</a>
+<a class="sourceLine" id="cb57-19" title="19">            <span class="st">"workclass"</span>,</a>
+<a class="sourceLine" id="cb57-20" title="20">            <span class="st">"education"</span>,</a>
+<a class="sourceLine" id="cb57-21" title="21">            <span class="st">"marital-status"</span>,</a>
+<a class="sourceLine" id="cb57-22" title="22">            <span class="st">"occupation"</span>,</a>
+<a class="sourceLine" id="cb57-23" title="23">            <span class="st">"relationship"</span>,</a>
+<a class="sourceLine" id="cb57-24" title="24">            <span class="st">"race"</span>,</a>
+<a class="sourceLine" id="cb57-25" title="25">            <span class="st">"sex"</span>,</a>
+<a class="sourceLine" id="cb57-26" title="26">            <span class="st">"native-country"</span>,</a>
+<a class="sourceLine" id="cb57-27" title="27">        ]:</a>
+<a class="sourceLine" id="cb57-28" title="28">            categorical_convert <span class="op">=</span> <span class="va">self</span>.encoders[column]</a>
+<a class="sourceLine" id="cb57-29" title="29">            input_data[column] <span class="op">=</span> categorical_convert.transform(input_data[column])</a>
+<a class="sourceLine" id="cb57-30" title="30"></a>
+<a class="sourceLine" id="cb57-31" title="31">        <span class="cf">return</span> input_data</a>
+<a class="sourceLine" id="cb57-32" title="32"></a>
+<a class="sourceLine" id="cb57-33" title="33">    <span class="kw">def</span> predict(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb57-34" title="34">        <span class="cf">return</span> <span class="va">self</span>.model.predict_proba(input_data)</a>
+<a class="sourceLine" id="cb57-35" title="35"></a>
+<a class="sourceLine" id="cb57-36" title="36">    <span class="kw">def</span> postprocessing(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb57-37" title="37">        label <span class="op">=</span> <span class="st">"&lt;=50K"</span></a>
+<a class="sourceLine" id="cb57-38" title="38">        <span class="cf">if</span> input_data[<span class="dv">1</span>] <span class="op">&gt;</span> <span class="fl">0.5</span>:</a>
+<a class="sourceLine" id="cb57-39" title="39">            label <span class="op">=</span> <span class="st">"&gt;50K"</span></a>
+<a class="sourceLine" id="cb57-40" title="40">        <span class="cf">return</span> {<span class="st">"probability"</span>: input_data[<span class="dv">1</span>], <span class="st">"label"</span>: label, <span class="st">"status"</span>: <span class="st">"OK"</span>}</a>
+<a class="sourceLine" id="cb57-41" title="41"></a>
+<a class="sourceLine" id="cb57-42" title="42">    <span class="kw">def</span> compute_prediction(<span class="va">self</span>, input_data):</a>
+<a class="sourceLine" id="cb57-43" title="43">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb57-44" title="44">            input_data <span class="op">=</span> <span class="va">self</span>.preprocessing(input_data)</a>
+<a class="sourceLine" id="cb57-45" title="45">            prediction <span class="op">=</span> <span class="va">self</span>.predict(input_data)[<span class="dv">0</span>]  <span class="co"># only one sample</span></a>
+<a class="sourceLine" id="cb57-46" title="46">            prediction <span class="op">=</span> <span class="va">self</span>.postprocessing(prediction)</a>
+<a class="sourceLine" id="cb57-47" title="47">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb57-48" title="48">            <span class="cf">return</span> {<span class="st">"status"</span>: <span class="st">"Error"</span>, <span class="st">"message"</span>: <span class="bu">str</span>(e)}</a>
+<a class="sourceLine" id="cb57-49" title="49"></a>
+<a class="sourceLine" id="cb57-50" title="50">        <span class="cf">return</span> prediction</a></code></pre></div>
+<p>Add the test in <code>backend/server/apps/ml/tests.py</code> file:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb58-1" title="1"><span class="co"># in file backend/server/apps/ml/tests.py</span></a>
+<a class="sourceLine" id="cb58-2" title="2"><span class="co"># add new import</span></a>
+<a class="sourceLine" id="cb58-3" title="3"><span class="im">from</span> apps.ml.income_classifier.extra_trees <span class="im">import</span> ExtraTreesClassifier</a>
+<a class="sourceLine" id="cb58-4" title="4"></a>
+<a class="sourceLine" id="cb58-5" title="5"><span class="co"># ... the rest of the code</span></a>
+<a class="sourceLine" id="cb58-6" title="6"></a>
+<a class="sourceLine" id="cb58-7" title="7"><span class="co"># add new test method to MLTests class</span></a>
+<a class="sourceLine" id="cb58-8" title="8">    <span class="kw">def</span> test_et_algorithm(<span class="va">self</span>):</a>
+<a class="sourceLine" id="cb58-9" title="9">        input_data <span class="op">=</span> {</a>
+<a class="sourceLine" id="cb58-10" title="10">            <span class="st">"age"</span>: <span class="dv">37</span>,</a>
+<a class="sourceLine" id="cb58-11" title="11">            <span class="st">"workclass"</span>: <span class="st">"Private"</span>,</a>
+<a class="sourceLine" id="cb58-12" title="12">            <span class="st">"fnlwgt"</span>: <span class="dv">34146</span>,</a>
+<a class="sourceLine" id="cb58-13" title="13">            <span class="st">"education"</span>: <span class="st">"HS-grad"</span>,</a>
+<a class="sourceLine" id="cb58-14" title="14">            <span class="st">"education-num"</span>: <span class="dv">9</span>,</a>
+<a class="sourceLine" id="cb58-15" title="15">            <span class="st">"marital-status"</span>: <span class="st">"Married-civ-spouse"</span>,</a>
+<a class="sourceLine" id="cb58-16" title="16">            <span class="st">"occupation"</span>: <span class="st">"Craft-repair"</span>,</a>
+<a class="sourceLine" id="cb58-17" title="17">            <span class="st">"relationship"</span>: <span class="st">"Husband"</span>,</a>
+<a class="sourceLine" id="cb58-18" title="18">            <span class="st">"race"</span>: <span class="st">"White"</span>,</a>
+<a class="sourceLine" id="cb58-19" title="19">            <span class="st">"sex"</span>: <span class="st">"Male"</span>,</a>
+<a class="sourceLine" id="cb58-20" title="20">            <span class="st">"capital-gain"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb58-21" title="21">            <span class="st">"capital-loss"</span>: <span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb58-22" title="22">            <span class="st">"hours-per-week"</span>: <span class="dv">68</span>,</a>
+<a class="sourceLine" id="cb58-23" title="23">            <span class="st">"native-country"</span>: <span class="st">"United-States"</span></a>
+<a class="sourceLine" id="cb58-24" title="24">        }</a>
+<a class="sourceLine" id="cb58-25" title="25">        my_alg <span class="op">=</span> ExtraTreesClassifier()</a>
+<a class="sourceLine" id="cb58-26" title="26">        response <span class="op">=</span> my_alg.compute_prediction(input_data)</a>
+<a class="sourceLine" id="cb58-27" title="27">        <span class="va">self</span>.assertEqual(<span class="st">'OK'</span>, response[<span class="st">'status'</span>])</a>
+<a class="sourceLine" id="cb58-28" title="28">        <span class="va">self</span>.assertTrue(<span class="st">'label'</span> <span class="kw">in</span> response)</a>
+<a class="sourceLine" id="cb58-29" title="29">        <span class="va">self</span>.assertEqual(<span class="st">'&lt;=50K'</span>, response[<span class="st">'label'</span>])</a></code></pre></div>
+<p>To run tests:</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb59-1" title="1"><span class="co"># please run in backend/server directory</span></a>
+<a class="sourceLine" id="cb59-2" title="2"><span class="ex">python</span> manage.py test apps.ml.tests</a></code></pre></div>
+<p>The algorithm is working as expected. We need to add it to our ML registry. We need to modify <code>backend/server/server/wsgi.py</code> file:</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb60-1" title="1"><span class="co"># the `backend/server/server/wsgi.py file</span></a>
+<a class="sourceLine" id="cb60-2" title="2"><span class="im">import</span> os</a>
+<a class="sourceLine" id="cb60-3" title="3"><span class="im">from</span> django.core.wsgi <span class="im">import</span> get_wsgi_application</a>
+<a class="sourceLine" id="cb60-4" title="4">os.environ.setdefault(<span class="st">'DJANGO_SETTINGS_MODULE'</span>, <span class="st">'server.settings'</span>)</a>
+<a class="sourceLine" id="cb60-5" title="5">application <span class="op">=</span> get_wsgi_application()</a>
+<a class="sourceLine" id="cb60-6" title="6"></a>
+<a class="sourceLine" id="cb60-7" title="7"><span class="co"># ML registry</span></a>
+<a class="sourceLine" id="cb60-8" title="8"><span class="im">import</span> inspect</a>
+<a class="sourceLine" id="cb60-9" title="9"><span class="im">from</span> apps.ml.registry <span class="im">import</span> MLRegistry</a>
+<a class="sourceLine" id="cb60-10" title="10"><span class="im">from</span> apps.ml.income_classifier.random_forest <span class="im">import</span> RandomForestClassifier</a>
+<a class="sourceLine" id="cb60-11" title="11"><span class="im">from</span> apps.ml.income_classifier.extra_trees <span class="im">import</span> ExtraTreesClassifier <span class="co"># import ExtraTrees ML algorithm</span></a>
+<a class="sourceLine" id="cb60-12" title="12"></a>
+<a class="sourceLine" id="cb60-13" title="13"><span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb60-14" title="14">    registry <span class="op">=</span> MLRegistry() <span class="co"># create ML registry</span></a>
+<a class="sourceLine" id="cb60-15" title="15">    <span class="co"># Random Forest classifier</span></a>
+<a class="sourceLine" id="cb60-16" title="16">    rf <span class="op">=</span> RandomForestClassifier()</a>
+<a class="sourceLine" id="cb60-17" title="17">    <span class="co"># add to ML registry</span></a>
+<a class="sourceLine" id="cb60-18" title="18">    registry.add_algorithm(endpoint_name<span class="op">=</span><span class="st">"income_classifier"</span>,</a>
+<a class="sourceLine" id="cb60-19" title="19">                            algorithm_object<span class="op">=</span>rf,</a>
+<a class="sourceLine" id="cb60-20" title="20">                            algorithm_name<span class="op">=</span><span class="st">"random forest"</span>,</a>
+<a class="sourceLine" id="cb60-21" title="21">                            algorithm_status<span class="op">=</span><span class="st">"production"</span>,</a>
+<a class="sourceLine" id="cb60-22" title="22">                            algorithm_version<span class="op">=</span><span class="st">"0.0.1"</span>,</a>
+<a class="sourceLine" id="cb60-23" title="23">                            owner<span class="op">=</span><span class="st">"Piotr"</span>,</a>
+<a class="sourceLine" id="cb60-24" title="24">                            algorithm_description<span class="op">=</span><span class="st">"Random Forest with simple pre- and post-processing"</span>,</a>
+<a class="sourceLine" id="cb60-25" title="25">                            algorithm_code<span class="op">=</span>inspect.getsource(RandomForestClassifier))</a>
+<a class="sourceLine" id="cb60-26" title="26"></a>
+<a class="sourceLine" id="cb60-27" title="27">    <span class="co"># Extra Trees classifier</span></a>
+<a class="sourceLine" id="cb60-28" title="28">    et <span class="op">=</span> ExtraTreesClassifier()</a>
+<a class="sourceLine" id="cb60-29" title="29">    <span class="co"># add to ML registry</span></a>
+<a class="sourceLine" id="cb60-30" title="30">    registry.add_algorithm(endpoint_name<span class="op">=</span><span class="st">"income_classifier"</span>,</a>
+<a class="sourceLine" id="cb60-31" title="31">                            algorithm_object<span class="op">=</span>et,</a>
+<a class="sourceLine" id="cb60-32" title="32">                            algorithm_name<span class="op">=</span><span class="st">"extra trees"</span>,</a>
+<a class="sourceLine" id="cb60-33" title="33">                            algorithm_status<span class="op">=</span><span class="st">"testing"</span>,</a>
+<a class="sourceLine" id="cb60-34" title="34">                            algorithm_version<span class="op">=</span><span class="st">"0.0.1"</span>,</a>
+<a class="sourceLine" id="cb60-35" title="35">                            owner<span class="op">=</span><span class="st">"Piotr"</span>,</a>
+<a class="sourceLine" id="cb60-36" title="36">                            algorithm_description<span class="op">=</span><span class="st">"Extra Trees with simple pre- and post-processing"</span>,</a>
+<a class="sourceLine" id="cb60-37" title="37">                            algorithm_code<span class="op">=</span>inspect.getsource(RandomForestClassifier))</a>
+<a class="sourceLine" id="cb60-38" title="38"><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb60-39" title="39">    <span class="bu">print</span>(<span class="st">"Exception while loading the algorithms to the registry,"</span>, <span class="bu">str</span>(e))</a></code></pre></div>
+<p>To see changes, please restart the server:</p>
+<div class="sourceCode" id="cb61"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb61-1" title="1"><span class="co"># please run in backend/server</span></a>
+<a class="sourceLine" id="cb61-2" title="2"><span class="co"># stop server with CONTROL-C.</span></a>
+<a class="sourceLine" id="cb61-3" title="3"><span class="co"># start server:</span></a>
+<a class="sourceLine" id="cb61-4" title="4"><span class="ex">python</span> manage.py runserver</a></code></pre></div>
+<p>After server restart please open <code>http://127.0.0.1:8000/api/v1/mlalgorithms</code> in the web browser. You should see two registered ML algorithms (image <a href="#fig:10">10</a>).</p>
+<div id="fig:10" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_two_algorithms.png" alt="Figure&nbsp;10: Two ML algorithms registered in the service"><figcaption><span>Figure&nbsp;10:</span> Two ML algorithms registered in the service</figcaption>
+</figure>
+</div>
+<h2 id="create-ab-model-in-the-database">Create A/B model in the database</h2>
+<h3 id="add-abtest-model">Add ABTest model</h3>
+<p>Let’s add database model in the <code>backend/server/apps/endpoints/models.py</code> file to keep information about A/B tests:</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb62-1" title="1"><span class="co"># please add at the end of file backend/server/apps/endpoints/models.py</span></a>
+<a class="sourceLine" id="cb62-2" title="2"></a>
+<a class="sourceLine" id="cb62-3" title="3"><span class="kw">class</span> ABTest(models.Model):</a>
+<a class="sourceLine" id="cb62-4" title="4">    <span class="co">'''</span></a>
+<a class="sourceLine" id="cb62-5" title="5"><span class="co">    The ABTest will keep information about A/B tests.</span></a>
+<a class="sourceLine" id="cb62-6" title="6"><span class="co">    Attributes:</span></a>
+<a class="sourceLine" id="cb62-7" title="7"><span class="co">        title: The title of test.</span></a>
+<a class="sourceLine" id="cb62-8" title="8"><span class="co">        created_by: The name of creator.</span></a>
+<a class="sourceLine" id="cb62-9" title="9"><span class="co">        created_at: The date of test creation.</span></a>
+<a class="sourceLine" id="cb62-10" title="10"><span class="co">        ended_at: The date of test stop.</span></a>
+<a class="sourceLine" id="cb62-11" title="11"><span class="co">        summary: The description with test summary, created at test stop.</span></a>
+<a class="sourceLine" id="cb62-12" title="12"><span class="co">        parent_mlalgorithm_1: The reference to the first corresponding MLAlgorithm.</span></a>
+<a class="sourceLine" id="cb62-13" title="13"><span class="co">        parent_mlalgorithm_2: The reference to the second corresponding MLAlgorithm.</span></a>
+<a class="sourceLine" id="cb62-14" title="14"><span class="co">    '''</span></a>
+<a class="sourceLine" id="cb62-15" title="15">    title <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>)</a>
+<a class="sourceLine" id="cb62-16" title="16">    created_by <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">128</span>)</a>
+<a class="sourceLine" id="cb62-17" title="17">    created_at <span class="op">=</span> models.DateTimeField(auto_now_add<span class="op">=</span><span class="va">True</span>, blank<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb62-18" title="18">    ended_at <span class="op">=</span> models.DateTimeField(blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb62-19" title="19">    summary <span class="op">=</span> models.CharField(max_length<span class="op">=</span><span class="dv">10000</span>, blank<span class="op">=</span><span class="va">True</span>, null<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb62-20" title="20"></a>
+<a class="sourceLine" id="cb62-21" title="21">    parent_mlalgorithm_1 <span class="op">=</span> models.ForeignKey(MLAlgorithm, on_delete<span class="op">=</span>models.CASCADE, related_name<span class="op">=</span><span class="st">"parent_mlalgorithm_1"</span>)</a>
+<a class="sourceLine" id="cb62-22" title="22">    parent_mlalgorithm_2 <span class="op">=</span> models.ForeignKey(MLAlgorithm, on_delete<span class="op">=</span>models.CASCADE, related_name<span class="op">=</span><span class="st">"parent_mlalgorithm_2"</span>)</a></code></pre></div>
+<p>The <code>ABTest</code> keeps information about:</p>
+<ul>
+<li>which ML algorithms are tested,</li>
+<li>who and when created the test,</li>
+<li>when test is stopped,</li>
+<li>the test results in the <code>summary</code> field.</li>
+</ul>
+<h3 id="define-serializer">Define serializer</h3>
+<p>Let’s add a serializer for the <code>ABTest</code> model.</p>
+<div class="sourceCode" id="cb63"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb63-1" title="1"></a>
+<a class="sourceLine" id="cb63-2" title="2"><span class="co"># please add at the beginning of file backend/server/apps/endpoints/serializers.py</span></a>
+<a class="sourceLine" id="cb63-3" title="3"></a>
+<a class="sourceLine" id="cb63-4" title="4"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> ABTest</a>
+<a class="sourceLine" id="cb63-5" title="5"></a>
+<a class="sourceLine" id="cb63-6" title="6"><span class="co"># ...</span></a>
+<a class="sourceLine" id="cb63-7" title="7"><span class="co"># rest of the code</span></a>
+<a class="sourceLine" id="cb63-8" title="8"><span class="co"># ...</span></a>
+<a class="sourceLine" id="cb63-9" title="9"></a>
+<a class="sourceLine" id="cb63-10" title="10"><span class="co"># please add at the end of file backend/server/apps/endpoints/serializers.py</span></a>
+<a class="sourceLine" id="cb63-11" title="11"><span class="kw">class</span> ABTestSerializer(serializers.ModelSerializer):</a>
+<a class="sourceLine" id="cb63-12" title="12">    <span class="kw">class</span> Meta:</a>
+<a class="sourceLine" id="cb63-13" title="13">        model <span class="op">=</span> ABTest</a>
+<a class="sourceLine" id="cb63-14" title="14">        read_only_fields <span class="op">=</span> (</a>
+<a class="sourceLine" id="cb63-15" title="15">            <span class="st">"id"</span>,</a>
+<a class="sourceLine" id="cb63-16" title="16">            <span class="st">"ended_at"</span>,</a>
+<a class="sourceLine" id="cb63-17" title="17">            <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb63-18" title="18">            <span class="st">"summary"</span>,</a>
+<a class="sourceLine" id="cb63-19" title="19">        )</a>
+<a class="sourceLine" id="cb63-20" title="20">        fields <span class="op">=</span> (</a>
+<a class="sourceLine" id="cb63-21" title="21">            <span class="st">"id"</span>,</a>
+<a class="sourceLine" id="cb63-22" title="22">            <span class="st">"title"</span>,</a>
+<a class="sourceLine" id="cb63-23" title="23">            <span class="st">"created_by"</span>,</a>
+<a class="sourceLine" id="cb63-24" title="24">            <span class="st">"created_at"</span>,</a>
+<a class="sourceLine" id="cb63-25" title="25">            <span class="st">"ended_at"</span>,</a>
+<a class="sourceLine" id="cb63-26" title="26">            <span class="st">"summary"</span>,</a>
+<a class="sourceLine" id="cb63-27" title="27">            <span class="st">"parent_mlalgorithm_1"</span>,</a>
+<a class="sourceLine" id="cb63-28" title="28">            <span class="st">"parent_mlalgorithm_2"</span>,</a>
+<a class="sourceLine" id="cb63-29" title="29">            )</a></code></pre></div>
+<p>Please notice, that <code>id</code>, <code>created_at</code>, <code>ended_at</code> and <code>summary</code>
+ fields are marked as read-only. We will allow users to create A/B tests
+ with REST API the read-only fields with be set with server code.</p>
+<h3 id="define-view">Define view</h3>
+<div class="sourceCode" id="cb64"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb64-1" title="1"><span class="co"># please add to the file backend/server/apps/endpoints/views.py</span></a>
+<a class="sourceLine" id="cb64-2" title="2"></a>
+<a class="sourceLine" id="cb64-3" title="3"><span class="im">from</span> django.db <span class="im">import</span> transaction</a>
+<a class="sourceLine" id="cb64-4" title="4"><span class="im">from</span> apps.endpoints.models <span class="im">import</span> ABTest</a>
+<a class="sourceLine" id="cb64-5" title="5"><span class="im">from</span> apps.endpoints.serializers <span class="im">import</span> ABTestSerializer</a>
+<a class="sourceLine" id="cb64-6" title="6"></a>
+<a class="sourceLine" id="cb64-7" title="7"></a>
+<a class="sourceLine" id="cb64-8" title="8"><span class="kw">class</span> ABTestViewSet(</a>
+<a class="sourceLine" id="cb64-9" title="9">    mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet,</a>
+<a class="sourceLine" id="cb64-10" title="10">    mixins.CreateModelMixin, mixins.UpdateModelMixin</a>
+<a class="sourceLine" id="cb64-11" title="11">):</a>
+<a class="sourceLine" id="cb64-12" title="12">    serializer_class <span class="op">=</span> ABTestSerializer</a>
+<a class="sourceLine" id="cb64-13" title="13">    queryset <span class="op">=</span> ABTest.objects.<span class="bu">all</span>()</a>
+<a class="sourceLine" id="cb64-14" title="14"></a>
+<a class="sourceLine" id="cb64-15" title="15">    <span class="kw">def</span> perform_create(<span class="va">self</span>, serializer):</a>
+<a class="sourceLine" id="cb64-16" title="16">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb64-17" title="17">            <span class="cf">with</span> transaction.atomic():</a>
+<a class="sourceLine" id="cb64-18" title="18">                instance <span class="op">=</span> serializer.save()</a>
+<a class="sourceLine" id="cb64-19" title="19">                <span class="co"># update status for first algorithm</span></a>
+<a class="sourceLine" id="cb64-20" title="20"></a>
+<a class="sourceLine" id="cb64-21" title="21">                status_1 <span class="op">=</span> MLAlgorithmStatus(status <span class="op">=</span> <span class="st">"ab_testing"</span>,</a>
+<a class="sourceLine" id="cb64-22" title="22">                                created_by<span class="op">=</span>instance.created_by,</a>
+<a class="sourceLine" id="cb64-23" title="23">                                parent_mlalgorithm <span class="op">=</span> instance.parent_mlalgorithm_1,</a>
+<a class="sourceLine" id="cb64-24" title="24">                                active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb64-25" title="25">                status_1.save()</a>
+<a class="sourceLine" id="cb64-26" title="26">                deactivate_other_statuses(status_1)</a>
+<a class="sourceLine" id="cb64-27" title="27">                <span class="co"># update status for second algorithm</span></a>
+<a class="sourceLine" id="cb64-28" title="28">                status_2 <span class="op">=</span> MLAlgorithmStatus(status <span class="op">=</span> <span class="st">"ab_testing"</span>,</a>
+<a class="sourceLine" id="cb64-29" title="29">                                created_by<span class="op">=</span>instance.created_by,</a>
+<a class="sourceLine" id="cb64-30" title="30">                                parent_mlalgorithm <span class="op">=</span> instance.parent_mlalgorithm_2,</a>
+<a class="sourceLine" id="cb64-31" title="31">                                active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb64-32" title="32">                status_2.save()</a>
+<a class="sourceLine" id="cb64-33" title="33">                deactivate_other_statuses(status_2)</a>
+<a class="sourceLine" id="cb64-34" title="34"></a>
+<a class="sourceLine" id="cb64-35" title="35">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb64-36" title="36">            <span class="cf">raise</span> APIException(<span class="bu">str</span>(e))</a></code></pre></div>
+<p>The <code>ABTestViewSet</code> view allows the user to create new objects. The <code>perform_create</code> method creates the <code>ABTest</code> object and two new statuses for ML algorithms. The new statuses are set to <code>ab_testing</code>.</p>
+<p>We will add also a view to stop the A/B test.</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb65-1" title="1"></a>
+<a class="sourceLine" id="cb65-2" title="2"><span class="co"># please add to the file backend/server/apps/endpoints/views.py</span></a>
+<a class="sourceLine" id="cb65-3" title="3"></a>
+<a class="sourceLine" id="cb65-4" title="4"><span class="im">from</span> django.db.models <span class="im">import</span> F</a>
+<a class="sourceLine" id="cb65-5" title="5"><span class="im">import</span> datetime</a>
+<a class="sourceLine" id="cb65-6" title="6"></a>
+<a class="sourceLine" id="cb65-7" title="7"><span class="kw">class</span> StopABTestView(views.APIView):</a>
+<a class="sourceLine" id="cb65-8" title="8">    <span class="kw">def</span> post(<span class="va">self</span>, request, ab_test_id, <span class="bu">format</span><span class="op">=</span><span class="va">None</span>):</a>
+<a class="sourceLine" id="cb65-9" title="9"></a>
+<a class="sourceLine" id="cb65-10" title="10">        <span class="cf">try</span>:</a>
+<a class="sourceLine" id="cb65-11" title="11">            ab_test <span class="op">=</span> ABTest.objects.get(pk<span class="op">=</span>ab_test_id)</a>
+<a class="sourceLine" id="cb65-12" title="12"></a>
+<a class="sourceLine" id="cb65-13" title="13">            <span class="cf">if</span> ab_test.ended_at <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</a>
+<a class="sourceLine" id="cb65-14" title="14">                <span class="cf">return</span> Response({<span class="st">"message"</span>: <span class="st">"AB Test already finished."</span>})</a>
+<a class="sourceLine" id="cb65-15" title="15"></a>
+<a class="sourceLine" id="cb65-16" title="16">            date_now <span class="op">=</span> datetime.datetime.now()</a>
+<a class="sourceLine" id="cb65-17" title="17">            <span class="co"># alg #1 accuracy</span></a>
+<a class="sourceLine" id="cb65-18" title="18">            all_responses_1 <span class="op">=</span> MLRequest.objects.<span class="bu">filter</span>(parent_mlalgorithm<span class="op">=</span>ab_test.parent_mlalgorithm_1, created_at__gt <span class="op">=</span> ab_test.created_at, created_at__lt <span class="op">=</span> date_now).count()</a>
+<a class="sourceLine" id="cb65-19" title="19">            correct_responses_1 <span class="op">=</span> MLRequest.objects.<span class="bu">filter</span>(parent_mlalgorithm<span class="op">=</span>ab_test.parent_mlalgorithm_1, created_at__gt <span class="op">=</span> ab_test.created_at, created_at__lt <span class="op">=</span> date_now, response<span class="op">=</span>F(<span class="st">'feedback'</span>)).count()</a>
+<a class="sourceLine" id="cb65-20" title="20">            accuracy_1 <span class="op">=</span> correct_responses_1 <span class="op">/</span> <span class="bu">float</span>(all_responses_1)</a>
+<a class="sourceLine" id="cb65-21" title="21">            <span class="bu">print</span>(all_responses_1, correct_responses_1, accuracy_1)</a>
+<a class="sourceLine" id="cb65-22" title="22"></a>
+<a class="sourceLine" id="cb65-23" title="23">            <span class="co"># alg #2 accuracy</span></a>
+<a class="sourceLine" id="cb65-24" title="24">            all_responses_2 <span class="op">=</span> MLRequest.objects.<span class="bu">filter</span>(parent_mlalgorithm<span class="op">=</span>ab_test.parent_mlalgorithm_2, created_at__gt <span class="op">=</span> ab_test.created_at, created_at__lt <span class="op">=</span> date_now).count()</a>
+<a class="sourceLine" id="cb65-25" title="25">            correct_responses_2 <span class="op">=</span> MLRequest.objects.<span class="bu">filter</span>(parent_mlalgorithm<span class="op">=</span>ab_test.parent_mlalgorithm_2, created_at__gt <span class="op">=</span> ab_test.created_at, created_at__lt <span class="op">=</span> date_now, response<span class="op">=</span>F(<span class="st">'feedback'</span>)).count()</a>
+<a class="sourceLine" id="cb65-26" title="26">            accuracy_2 <span class="op">=</span> correct_responses_2 <span class="op">/</span> <span class="bu">float</span>(all_responses_2)</a>
+<a class="sourceLine" id="cb65-27" title="27">            <span class="bu">print</span>(all_responses_2, correct_responses_2, accuracy_2)</a>
+<a class="sourceLine" id="cb65-28" title="28"></a>
+<a class="sourceLine" id="cb65-29" title="29">            <span class="co"># select algorithm with higher accuracy</span></a>
+<a class="sourceLine" id="cb65-30" title="30">            alg_id_1, alg_id_2 <span class="op">=</span> ab_test.parent_mlalgorithm_1, ab_test.parent_mlalgorithm_2</a>
+<a class="sourceLine" id="cb65-31" title="31">            <span class="co"># swap</span></a>
+<a class="sourceLine" id="cb65-32" title="32">            <span class="cf">if</span> accuracy_1 <span class="op">&lt;</span> accuracy_2:</a>
+<a class="sourceLine" id="cb65-33" title="33">                alg_id_1, alg_id_2 <span class="op">=</span> alg_id_2, alg_id_1</a>
+<a class="sourceLine" id="cb65-34" title="34"></a>
+<a class="sourceLine" id="cb65-35" title="35">            status_1 <span class="op">=</span> MLAlgorithmStatus(status <span class="op">=</span> <span class="st">"production"</span>,</a>
+<a class="sourceLine" id="cb65-36" title="36">                            created_by<span class="op">=</span>ab_test.created_by,</a>
+<a class="sourceLine" id="cb65-37" title="37">                            parent_mlalgorithm <span class="op">=</span> alg_id_1,</a>
+<a class="sourceLine" id="cb65-38" title="38">                            active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb65-39" title="39">            status_1.save()</a>
+<a class="sourceLine" id="cb65-40" title="40">            deactivate_other_statuses(status_1)</a>
+<a class="sourceLine" id="cb65-41" title="41">            <span class="co"># update status for second algorithm</span></a>
+<a class="sourceLine" id="cb65-42" title="42">            status_2 <span class="op">=</span> MLAlgorithmStatus(status <span class="op">=</span> <span class="st">"testing"</span>,</a>
+<a class="sourceLine" id="cb65-43" title="43">                            created_by<span class="op">=</span>ab_test.created_by,</a>
+<a class="sourceLine" id="cb65-44" title="44">                            parent_mlalgorithm <span class="op">=</span> alg_id_2,</a>
+<a class="sourceLine" id="cb65-45" title="45">                            active<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb65-46" title="46">            status_2.save()</a>
+<a class="sourceLine" id="cb65-47" title="47">            deactivate_other_statuses(status_2)</a>
+<a class="sourceLine" id="cb65-48" title="48"></a>
+<a class="sourceLine" id="cb65-49" title="49"></a>
+<a class="sourceLine" id="cb65-50" title="50">            summary <span class="op">=</span> <span class="st">"Algorithm #1 accuracy: </span><span class="sc">{}</span><span class="st">, Algorithm #2 accuracy: </span><span class="sc">{}</span><span class="st">"</span>.<span class="bu">format</span>(accuracy_1, accuracy_2)</a>
+<a class="sourceLine" id="cb65-51" title="51">            ab_test.ended_at <span class="op">=</span> date_now</a>
+<a class="sourceLine" id="cb65-52" title="52">            ab_test.summary <span class="op">=</span> summary</a>
+<a class="sourceLine" id="cb65-53" title="53">            ab_test.save()</a>
+<a class="sourceLine" id="cb65-54" title="54"></a>
+<a class="sourceLine" id="cb65-55" title="55">        <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</a>
+<a class="sourceLine" id="cb65-56" title="56">            <span class="cf">return</span> Response({<span class="st">"status"</span>: <span class="st">"Error"</span>, <span class="st">"message"</span>: <span class="bu">str</span>(e)},</a>
+<a class="sourceLine" id="cb65-57" title="57">                            status<span class="op">=</span>status.HTTP_400_BAD_REQUEST</a>
+<a class="sourceLine" id="cb65-58" title="58">            )</a>
+<a class="sourceLine" id="cb65-59" title="59">        <span class="cf">return</span> Response({<span class="st">"message"</span>: <span class="st">"AB Test finished."</span>, <span class="st">"summary"</span>: summary})</a></code></pre></div>
+<p>The <code>StopABTestView</code> stops the A/B test and compute the 
+accuracy (ratio of correct responses) for each algorithm. The algorithm 
+with higher accurcy is set as production algorithm, the other algorithm 
+is saved with <code>testing</code> status.</p>
+<h3 id="add-url-router-for-abtest">Add URL router for ABTest</h3>
+<p>The last thing is to add the URL router:</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb66-1" title="1"><span class="co"># the backend/server/apps/endpoints/urls.py file</span></a>
+<a class="sourceLine" id="cb66-2" title="2"><span class="im">from</span> django.conf.urls <span class="im">import</span> url, include</a>
+<a class="sourceLine" id="cb66-3" title="3"><span class="im">from</span> rest_framework.routers <span class="im">import</span> DefaultRouter</a>
+<a class="sourceLine" id="cb66-4" title="4"></a>
+<a class="sourceLine" id="cb66-5" title="5"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> EndpointViewSet</a>
+<a class="sourceLine" id="cb66-6" title="6"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLAlgorithmViewSet</a>
+<a class="sourceLine" id="cb66-7" title="7"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLAlgorithmStatusViewSet</a>
+<a class="sourceLine" id="cb66-8" title="8"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> MLRequestViewSet</a>
+<a class="sourceLine" id="cb66-9" title="9"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> PredictView</a>
+<a class="sourceLine" id="cb66-10" title="10"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> ABTestViewSet</a>
+<a class="sourceLine" id="cb66-11" title="11"><span class="im">from</span> apps.endpoints.views <span class="im">import</span> StopABTestView</a>
+<a class="sourceLine" id="cb66-12" title="12"></a>
+<a class="sourceLine" id="cb66-13" title="13">router <span class="op">=</span> DefaultRouter(trailing_slash<span class="op">=</span><span class="va">False</span>)</a>
+<a class="sourceLine" id="cb66-14" title="14">router.register(<span class="vs">r"endpoints"</span>, EndpointViewSet, basename<span class="op">=</span><span class="st">"endpoints"</span>)</a>
+<a class="sourceLine" id="cb66-15" title="15">router.register(<span class="vs">r"mlalgorithms"</span>, MLAlgorithmViewSet, basename<span class="op">=</span><span class="st">"mlalgorithms"</span>)</a>
+<a class="sourceLine" id="cb66-16" title="16">router.register(<span class="vs">r"mlalgorithmstatuses"</span>, MLAlgorithmStatusViewSet, basename<span class="op">=</span><span class="st">"mlalgorithmstatuses"</span>)</a>
+<a class="sourceLine" id="cb66-17" title="17">router.register(<span class="vs">r"mlrequests"</span>, MLRequestViewSet, basename<span class="op">=</span><span class="st">"mlrequests"</span>)</a>
+<a class="sourceLine" id="cb66-18" title="18">router.register(<span class="vs">r"abtests"</span>, ABTestViewSet, basename<span class="op">=</span><span class="st">"abtests"</span>)</a>
+<a class="sourceLine" id="cb66-19" title="19"></a>
+<a class="sourceLine" id="cb66-20" title="20">urlpatterns <span class="op">=</span> [</a>
+<a class="sourceLine" id="cb66-21" title="21">    url(<span class="vs">r"^api/v1/"</span>, include(router.urls)),</a>
+<a class="sourceLine" id="cb66-22" title="22">    url(</a>
+<a class="sourceLine" id="cb66-23" title="23">        <span class="vs">r"^api/v1/(?P&lt;endpoint_name&gt;.+)/predict$"</span>, PredictView.as_view(), name<span class="op">=</span><span class="st">"predict"</span></a>
+<a class="sourceLine" id="cb66-24" title="24">    ),</a>
+<a class="sourceLine" id="cb66-25" title="25">    url(</a>
+<a class="sourceLine" id="cb66-26" title="26">        <span class="vs">r"^api/v1/stop_ab_test/(?P&lt;ab_test_id&gt;.+)"</span>, StopABTestView.as_view(), name<span class="op">=</span><span class="st">"stop_ab"</span></a>
+<a class="sourceLine" id="cb66-27" title="27">    ),</a>
+<a class="sourceLine" id="cb66-28" title="28">]</a></code></pre></div>
+<p>OK, we are almost set. Before starting a development server we need to create and apply database migrations:</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb67-1" title="1"><span class="ex">python</span> manage.py makemigrations</a>
+<a class="sourceLine" id="cb67-2" title="2"><span class="ex">python</span> manage.py migrate</a></code></pre></div>
+<p>Let’s run the server:</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb68-1" title="1"><span class="co"># please run in backend/server</span></a>
+<a class="sourceLine" id="cb68-2" title="2"><span class="ex">python</span> manage.py runserver</a></code></pre></div>
+<p>You should see list of DRF generated list of APIs like in image <a href="#fig:11">11</a>.</p>
+<div id="fig:11" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_abtests.png" alt="Figure&nbsp;11: URL to A/B tests"><figcaption><span>Figure&nbsp;11:</span> URL to A/B tests</figcaption>
+</figure>
+</div>
+<p>Let’s start new A/B test. Please go to address <code>http://127.0.0.1:8000/api/v1/abtests</code>
+ (at development environment). Please set the title, creator name and 
+set algorithms. You have algorithm id in the brackets. Make sure that 
+you select id 1 and 2, like in the image <a href="#fig:12">12</a>. Press the POST button to create the test.</p>
+<div id="fig:12" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_create_abtest.png" alt="Figure&nbsp;12: View to create new A/B test"><figcaption><span>Figure&nbsp;12:</span> View to create new A/B test</figcaption>
+</figure>
+</div>
+<p>After new A/B test creation you should see view like in the image <a href="#fig:13">13</a>.</p>
+<div id="fig:13" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_abtest_create_1.png" alt="Figure&nbsp;13: Created new A/B test"><figcaption><span>Figure&nbsp;13:</span> Created new A/B test</figcaption>
+</figure>
+</div>
+<p>After A/B test creation you should see updated status fields for ML algorithms. They should be set to <code>ab_testing</code>, like in the image <a href="#fig:14">16</a>.</p>
+<div id="fig:14" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_updated_algorithm_statuses.png" alt="Figure&nbsp;14: ML algorithms with updates statuses"><figcaption><span>Figure&nbsp;14:</span> ML algorithms with updates statuses</figcaption>
+</figure>
+</div>
+<h3 id="run-the-ab-test">Run the A/B test</h3>
+<p>To run the A/B test we will write python script in the Jupyter 
+notebook that will simulate real life A/B testing. The script will:</p>
+<ul>
+<li>read test data,</li>
+<li>send sample by sample to the server,</li>
+<li>get the server response and send the feedback to the server.</li>
+</ul>
+<p>Before starting new notebook, please install <code>requests</code> package that will be used for communication with the server.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb69-1" title="1"><span class="ex">pip3</span> install requests</a></code></pre></div>
+<p>Please open Jupyter notebook and create new script <code>ab_test.ipynb</code> in the <code>research</code> directory.</p>
+<p>Let’s add necessary packages.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb70-1" title="1"><span class="im">import</span> json <span class="co"># will be needed for saving preprocessing details</span></a>
+<a class="sourceLine" id="cb70-2" title="2"><span class="im">import</span> numpy <span class="im">as</span> np <span class="co"># for data manipulation</span></a>
+<a class="sourceLine" id="cb70-3" title="3"><span class="im">import</span> pandas <span class="im">as</span> pd <span class="co"># for data manipulation</span></a>
+<a class="sourceLine" id="cb70-4" title="4"><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split <span class="co"># will be used for data split</span></a>
+<a class="sourceLine" id="cb70-5" title="5"><span class="im">import</span> requests</a></code></pre></div>
+<p>Code to read the data:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb71-1" title="1"><span class="co"># load dataset</span></a>
+<a class="sourceLine" id="cb71-2" title="2">df <span class="op">=</span> pd.read_csv(<span class="st">'https://raw.githubusercontent.com/pplonski/datasets-for-start/master/adult/data.csv'</span>, skipinitialspace<span class="op">=</span><span class="va">True</span>)</a>
+<a class="sourceLine" id="cb71-3" title="3">x_cols <span class="op">=</span> [c <span class="cf">for</span> c <span class="kw">in</span> df.columns <span class="cf">if</span> c <span class="op">!=</span> <span class="st">'income'</span>]</a>
+<a class="sourceLine" id="cb71-4" title="4"><span class="co"># set input matrix and target column</span></a>
+<a class="sourceLine" id="cb71-5" title="5">X <span class="op">=</span> df[x_cols]</a>
+<a class="sourceLine" id="cb71-6" title="6">y <span class="op">=</span> df[<span class="st">'income'</span>]</a>
+<a class="sourceLine" id="cb71-7" title="7"><span class="co"># show first rows of data</span></a>
+<a class="sourceLine" id="cb71-8" title="8">df.head(</a></code></pre></div>
+<p>Split the data to train and test sets:</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb72-1" title="1"><span class="co"># data split train / test</span></a>
+<a class="sourceLine" id="cb72-2" title="2">X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size <span class="op">=</span> <span class="fl">0.3</span>, random_state<span class="op">=</span><span class="dv">1234</span>)</a></code></pre></div>
+<p>Please notice that we used the same seed (<code>random_state</code> value) as earlier while model training.</p>
+<p>Let’s use first 100 rows of test data for A/B test.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb73-1" title="1"><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</a>
+<a class="sourceLine" id="cb73-2" title="2">    input_data <span class="op">=</span> <span class="bu">dict</span>(X_test.iloc[i])</a>
+<a class="sourceLine" id="cb73-3" title="3">    target <span class="op">=</span> y_test.iloc[i]</a>
+<a class="sourceLine" id="cb73-4" title="4">    r <span class="op">=</span> requests.post(<span class="st">"http://127.0.0.1:8000/api/v1/income_classifier/predict?status=ab_testing"</span>, input_data)</a>
+<a class="sourceLine" id="cb73-5" title="5">    response <span class="op">=</span> r.json()</a>
+<a class="sourceLine" id="cb73-6" title="6">    <span class="co"># provide feedback</span></a>
+<a class="sourceLine" id="cb73-7" title="7">    requests.put(<span class="st">"http://127.0.0.1:8000/api/v1/mlrequests/</span><span class="sc">{}</span><span class="st">"</span>.<span class="bu">format</span>(response[<span class="st">"request_id"</span>]), {<span class="st">"feedback"</span>: target})</a></code></pre></div>
+<p>In each iteration step, we are sending data to API endpoint:</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb74-1" title="1"><span class="ex">http</span>://127.0.0.1:8000/api/v1/income_classifier/predict?status=ab_testing</a></code></pre></div>
+<p>and provide feedback with true label at:</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb75-1" title="1"><span class="ex">http</span>://127.0.0.1:8000/api/v1/mlrequests/<span class="op">&lt;</span>request-id<span class="op">&gt;</span></a></code></pre></div>
+<p>After running the script, you can check the requests at address: <code>http://127.0.0.1:8000/api/v1/mlrequests</code>. You should see list of requests like in the image <a href="#fig:15">15</a>.</p>
+<div id="fig:15" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_ab_requests.png" alt="Figure&nbsp;15: ML requests after running the A/B test script"><figcaption><span>Figure&nbsp;15:</span> ML requests after running the A/B test script</figcaption>
+</figure>
+</div>
+<p>To stop the A/B test, please open address <code>http://127.0.0.1:8000/api/v1/stop_ab_test/1</code> where <code>1</code>
+ at the end of the address it the A/B test id. Click on POST button to 
+finish A/B test. You should get the view like in the image ??.</p>
+<div id="fig:14" class="fignos">
+<figure>
+<img src="Deploy%20Machine%20Learning%20Models%20with%20Django_files/07_ab_finish.png" alt="Figure&nbsp;16: A/B test finish"><figcaption><span>Figure&nbsp;16:</span> A/B test finish</figcaption>
+</figure>
+</div>
+<p>You can see that there is summary of the test displayed with accuracy for each algorithm. You can check (at <code>http://127.0.0.1:8000/api/v1/mlalgorithms</code>) that algorithms have updated statuses, and the model with higher accuracy is set to production.</p>
+<h3 id="add-code-to-the-repository-2">Add code to the repository</h3>
+<p>Let’s save our code to the repository:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb76-1" title="1"><span class="fu">git</span> add backend/server/apps/ml/income_classifier/extra_trees.py</a>
+<a class="sourceLine" id="cb76-2" title="2"><span class="fu">git</span> add research/ab_test.ipynb</a>
+<a class="sourceLine" id="cb76-3" title="3"><span class="fu">git</span> commit -am <span class="st">"ab tests"</span></a>
+<a class="sourceLine" id="cb76-4" title="4"><span class="fu">git</span> push</a></code></pre></div>
+<p>In the next chapter, we will define docker container for our server.</p>
+<h1 id="containers">Containers</h1>
+<p>What you already did:</p>
+<ul>
+<li>create ML algorithms,</li>
+<li>create Django web service, with ML code, database models for endpoints, algorithms, and requests,</li>
+<li>create predict view, which is routing requests to ML algorithms,</li>
+<li>create A/B testing code in the server.</li>
+</ul>
+<p>In this chapter you will define docker container for our server code.
+ With docker it is easy to deploy the code to selected infrastructure 
+and it is easier to scale the service if needed.</p>
+<h2 id="prepare-the-code">Prepare the code</h2>
+<p>Before creating the docker definition we need to add some changes in the server code.</p>
+<p>Please edit <code>backend/server/server/settings.py</code> file and set <code>ALLOWED_HOSTS</code> variable:</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb77-1" title="1">ALLOWED_HOSTS <span class="op">=</span> [<span class="st">'0.0.0.0'</span>]</a></code></pre></div>
+<p>Additionally, set the <code>STATIC_ROOT</code>, <code>STATIC_URL</code> variables and the end of settings:</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb78-1" title="1">STATIC_ROOT <span class="op">=</span> os.path.join(BASE_DIR, <span class="st">'static'</span>)</a>
+<a class="sourceLine" id="cb78-2" title="2">STATIC_URL <span class="op">=</span> <span class="st">'/static/'</span></a></code></pre></div>
+<p>Please add the <code>requirements.txt</code> file in the project’s main directory:</p>
+<div class="sourceCode" id="cb79"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb79-1" title="1"><span class="va">Django=</span>=<span class="ex">2.2.4</span></a>
+<a class="sourceLine" id="cb79-2" title="2"><span class="ex">django-filter</span>==2.2.0</a>
+<a class="sourceLine" id="cb79-3" title="3"><span class="va">djangorestframework=</span>=<span class="ex">3.10.3</span></a>
+<a class="sourceLine" id="cb79-4" title="4"><span class="va">joblib=</span>=<span class="ex">0.14.0</span></a>
+<a class="sourceLine" id="cb79-5" title="5"><span class="va">Markdown=</span>=<span class="ex">3.1.1</span></a>
+<a class="sourceLine" id="cb79-6" title="6"><span class="va">numpy=</span>=<span class="ex">1.17.3</span></a>
+<a class="sourceLine" id="cb79-7" title="7"><span class="va">pandas=</span>=<span class="ex">0.25.2</span></a>
+<a class="sourceLine" id="cb79-8" title="8"><span class="va">requests=</span>=<span class="ex">2.22.0</span></a>
+<a class="sourceLine" id="cb79-9" title="9"><span class="ex">scikit-learn</span>==0.21.3</a></code></pre></div>
+<h2 id="dockerfiles">Dockerfiles</h2>
+<p>Let’s define the docker files for nginx server and our server application. We will keep them in separate directories:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb80-1" title="1"><span class="co"># please run in project's main directory</span></a>
+<a class="sourceLine" id="cb80-2" title="2"><span class="fu">mkdir</span> docker</a>
+<a class="sourceLine" id="cb80-3" title="3"><span class="fu">mkdir</span> docker/nginx</a>
+<a class="sourceLine" id="cb80-4" title="4"><span class="fu">mkdir</span> docker/backend</a></code></pre></div>
+<p>Please add file <code>Dockerfile</code> in <code>docker/nginx</code> directory:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb81-1" title="1"><span class="co"># docker/nginx/Dockerfile</span></a>
+<a class="sourceLine" id="cb81-2" title="2"><span class="ex">FROM</span> nginx:1.13.12-alpine</a>
+<a class="sourceLine" id="cb81-3" title="3"><span class="ex">CMD</span> [<span class="st">"nginx"</span>, <span class="st">"-g"</span>, <span class="st">"daemon off;"</span>]</a></code></pre></div>
+<p>Additionally, we will add nginx config file, please add <code>docker/nginx/default.conf</code> file:</p>
+<div class="sourceCode" id="cb82"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb82-1" title="1"><span class="ex">server</span> {</a>
+<a class="sourceLine" id="cb82-2" title="2">    <span class="ex">listen</span> 8000 default_server<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-3" title="3">    <span class="ex">listen</span> [::]:8000<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-4" title="4"></a>
+<a class="sourceLine" id="cb82-5" title="5">    <span class="ex">client_max_body_size</span> 20M<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-6" title="6"></a>
+<a class="sourceLine" id="cb82-7" title="7">    <span class="ex">location</span> / {</a>
+<a class="sourceLine" id="cb82-8" title="8">        <span class="ex">try_files</span> <span class="va">$uri</span> @proxy_api<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-9" title="9">    }</a>
+<a class="sourceLine" id="cb82-10" title="10"></a>
+<a class="sourceLine" id="cb82-11" title="11">    <span class="ex">location</span> @proxy_api {</a>
+<a class="sourceLine" id="cb82-12" title="12">        <span class="ex">proxy_set_header</span> X-Forwarded-Proto https<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-13" title="13">        <span class="ex">proxy_set_header</span> X-Url-Scheme <span class="va">$scheme</span><span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-14" title="14">        <span class="ex">proxy_set_header</span> X-Forwarded-For <span class="va">$proxy_add_x_forwarded_for</span><span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-15" title="15">        <span class="ex">proxy_set_header</span> Host <span class="va">$http_host</span><span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-16" title="16">        <span class="ex">proxy_redirect</span> off<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-17" title="17">        <span class="ex">proxy_pass</span>   http://wsgiserver:8000<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-18" title="18">    }</a>
+<a class="sourceLine" id="cb82-19" title="19"></a>
+<a class="sourceLine" id="cb82-20" title="20">    <span class="ex">location</span> /static/ {</a>
+<a class="sourceLine" id="cb82-21" title="21">        <span class="ex">autoindex</span> on<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-22" title="22">        <span class="bu">alias</span> /app/backend/server/static/<span class="kw">;</span></a>
+<a class="sourceLine" id="cb82-23" title="23">    }</a>
+<a class="sourceLine" id="cb82-24" title="24"></a>
+<a class="sourceLine" id="cb82-25" title="25">}</a></code></pre></div>
+<p>Now, let’s define ‘Dockerfile’ for our server application. Please add file <code>docker/backend/Dockerfile</code>:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb83-1" title="1"><span class="ex">FROM</span> ubuntu:xenial</a>
+<a class="sourceLine" id="cb83-2" title="2"></a>
+<a class="sourceLine" id="cb83-3" title="3"><span class="ex">RUN</span> apt-get update <span class="kw">&amp;&amp;</span> <span class="kw">\</span></a>
+<a class="sourceLine" id="cb83-4" title="4">    <span class="ex">apt-get</span> install -y software-properties-common <span class="kw">&amp;&amp;</span> <span class="kw">\</span></a>
+<a class="sourceLine" id="cb83-5" title="5">    <span class="ex">add-apt-repository</span> ppa:deadsnakes/ppa <span class="kw">&amp;&amp;</span> <span class="kw">\</span></a>
+<a class="sourceLine" id="cb83-6" title="6">    <span class="ex">apt-get</span> update <span class="kw">&amp;&amp;</span> <span class="kw">\</span></a>
+<a class="sourceLine" id="cb83-7" title="7">    <span class="ex">apt-get</span> install -y python3.6 python3.6-dev python3-pip</a>
+<a class="sourceLine" id="cb83-8" title="8"></a>
+<a class="sourceLine" id="cb83-9" title="9"><span class="ex">WORKDIR</span> /app</a>
+<a class="sourceLine" id="cb83-10" title="10"><span class="ex">COPY</span> requirements.txt .</a>
+<a class="sourceLine" id="cb83-11" title="11"><span class="ex">RUN</span> rm -f /usr/bin/python <span class="kw">&amp;&amp;</span> <span class="fu">ln</span> -s /usr/bin/python3.6 /usr/bin/python</a>
+<a class="sourceLine" id="cb83-12" title="12"><span class="ex">RUN</span> rm -f /usr/bin/python3 <span class="kw">&amp;&amp;</span> <span class="fu">ln</span> -s /usr/bin/python3.6 /usr/bin/python3</a>
+<a class="sourceLine" id="cb83-13" title="13"></a>
+<a class="sourceLine" id="cb83-14" title="14"><span class="ex">RUN</span> pip3 install -r requirements.txt</a>
+<a class="sourceLine" id="cb83-15" title="15"><span class="ex">RUN</span> pip3 install gunicorn==19.9.0</a>
+<a class="sourceLine" id="cb83-16" title="16"></a>
+<a class="sourceLine" id="cb83-17" title="17"><span class="ex">ADD</span> ./backend /app/backend</a>
+<a class="sourceLine" id="cb83-18" title="18"><span class="ex">ADD</span> ./docker /app/docker</a>
+<a class="sourceLine" id="cb83-19" title="19"><span class="ex">ADD</span> ./research /app/research</a>
+<a class="sourceLine" id="cb83-20" title="20"></a>
+<a class="sourceLine" id="cb83-21" title="21"><span class="ex">RUN</span> mkdir -p /app/backend/server/static</a></code></pre></div>
+<p>In this dockerfile, we load ubuntu system, and install all needed 
+packages and switch default python to python 3.6. At the end, we copy 
+the application code.</p>
+<p>We will define starting script for our application. Please add <code>docker/backend/wsgi-entrypoint.sh</code> file:</p>
+<div class="sourceCode" id="cb84"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb84-1" title="1"><span class="co">#!/usr/bin/env bash</span></a>
+<a class="sourceLine" id="cb84-2" title="2"></a>
+<a class="sourceLine" id="cb84-3" title="3"><span class="bu">echo</span> <span class="st">"Start backend server"</span></a>
+<a class="sourceLine" id="cb84-4" title="4"><span class="kw">until</span> <span class="bu">cd</span> /app/backend/server</a>
+<a class="sourceLine" id="cb84-5" title="5"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb84-6" title="6">    <span class="bu">echo</span> <span class="st">"Waiting for server volume..."</span></a>
+<a class="sourceLine" id="cb84-7" title="7"><span class="kw">done</span></a>
+<a class="sourceLine" id="cb84-8" title="8"></a>
+<a class="sourceLine" id="cb84-9" title="9"><span class="kw">until</span> <span class="ex">./manage.py</span> migrate</a>
+<a class="sourceLine" id="cb84-10" title="10"><span class="kw">do</span></a>
+<a class="sourceLine" id="cb84-11" title="11">    <span class="bu">echo</span> <span class="st">"Waiting for database to be ready..."</span></a>
+<a class="sourceLine" id="cb84-12" title="12">    <span class="fu">sleep</span> 2</a>
+<a class="sourceLine" id="cb84-13" title="13"><span class="kw">done</span></a>
+<a class="sourceLine" id="cb84-14" title="14"></a>
+<a class="sourceLine" id="cb84-15" title="15"><span class="ex">./manage.py</span> collectstatic --noinput</a>
+<a class="sourceLine" id="cb84-16" title="16"></a>
+<a class="sourceLine" id="cb84-17" title="17"><span class="ex">gunicorn</span> server.wsgi --bind 0.0.0.0:8000 --workers 4 --threads 4</a></code></pre></div>
+<p>We will use this starting script to apply database migrations and 
+creation of static files before application is stated with gunicorn.</p>
+<p>We have dockerfiles defined for nginx server and our application. We will manage them with <code>docker-compose</code> command. Let’s add <code>docker-compose.yml</code> file in the main directory:</p>
+<div class="sourceCode" id="cb85"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb85-1" title="1"><span class="ex">version</span>: <span class="st">'2'</span></a>
+<a class="sourceLine" id="cb85-2" title="2"></a>
+<a class="sourceLine" id="cb85-3" title="3"><span class="ex">services</span>:</a>
+<a class="sourceLine" id="cb85-4" title="4">    <span class="ex">nginx</span>:</a>
+<a class="sourceLine" id="cb85-5" title="5">        <span class="ex">restart</span>: always</a>
+<a class="sourceLine" id="cb85-6" title="6">        <span class="ex">image</span>: nginx:1.12-alpine</a>
+<a class="sourceLine" id="cb85-7" title="7">        <span class="ex">ports</span>:</a>
+<a class="sourceLine" id="cb85-8" title="8">            <span class="ex">-</span> 8000:8000</a>
+<a class="sourceLine" id="cb85-9" title="9">        <span class="ex">volumes</span>:</a>
+<a class="sourceLine" id="cb85-10" title="10">            <span class="ex">-</span> ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf</a>
+<a class="sourceLine" id="cb85-11" title="11">            <span class="ex">-</span> static_volume:/app/backend/server/static</a>
+<a class="sourceLine" id="cb85-12" title="12">    <span class="ex">wsgiserver</span>:</a>
+<a class="sourceLine" id="cb85-13" title="13">        <span class="ex">build</span>:</a>
+<a class="sourceLine" id="cb85-14" title="14">            <span class="ex">context</span>: .</a>
+<a class="sourceLine" id="cb85-15" title="15">            <span class="ex">dockerfile</span>: ./docker/backend/Dockerfile</a>
+<a class="sourceLine" id="cb85-16" title="16">        <span class="ex">entrypoint</span>: /app/docker/backend/wsgi-entrypoint.sh</a>
+<a class="sourceLine" id="cb85-17" title="17">        <span class="ex">volumes</span>:</a>
+<a class="sourceLine" id="cb85-18" title="18">            <span class="ex">-</span> static_volume:/app/backend/server/static</a>
+<a class="sourceLine" id="cb85-19" title="19">        <span class="ex">expose</span>:</a>
+<a class="sourceLine" id="cb85-20" title="20">            <span class="ex">-</span> 8000</a>
+<a class="sourceLine" id="cb85-21" title="21"><span class="ex">volumes</span>:</a>
+<a class="sourceLine" id="cb85-22" title="22">    <span class="ex">static_volume</span>: {}</a></code></pre></div>
+<p>To build docker images please run:</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb86-1" title="1"><span class="fu">sudo</span> docker-compose build</a></code></pre></div>
+<p>To start the docker images please run:</p>
+<div class="sourceCode" id="cb87"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb87-1" title="1"><span class="fu">sudo</span> docker-compose up</a></code></pre></div>
+<p>You should be able to see the running server at the address:</p>
+<div class="sourceCode" id="cb88"><pre class="sourceCode bash"><code class="sourceCode bash"><a class="sourceLine" id="cb88-1" title="1"><span class="ex">http</span>://0.0.0.0:8000/api/v1/</a></code></pre></div>
+<h3 id="congratulations"><strong>Congratulations!</strong></h3>
+<p>That was the last step of this tutorial. You have successfully 
+created your own web service that can serve machine learning models. 
+Congratulations!</p>
+<p>The full code is available in github <a href="https://github.com/pplonski/my_ml_service">https://github.com/pplonski/my_ml_service</a>.</p>
+<hr>
+<h3 id="feedback">Feedback</h3>
+<p>I’m looking for your feedback! Please fill this <a href="https://docs.google.com/forms/d/e/1FAIpQLSfdc8xWZKnIBZojw69rPR2ItKPwU-14-n_-ZNNh-A_kHDmg2A/viewform?usp=sf_link">form</a>.</p>
+
+
+</body></html>
