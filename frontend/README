@@ -1,0 +1,3 @@
+npx create-reactp-app frontend
+npm install bootstrap reactstrap --legacy-peer-deps
+npm install react-router-dom

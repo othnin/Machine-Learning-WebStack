@@ -28,12 +28,20 @@ class MLAlgorithmSerializer(serializers.ModelSerializer):
                             "parent_endpoint", "current_status")
         fields = read_only_fields
 
+
 class MLAlgorithmStatusSerializer(serializers.ModelSerializer):
+    alg_name = serializers.CharField(source='parent_mlalgorithm.name')
+
     class Meta:
         model = MLAlgorithmStatus
         read_only_fields = ("id", "active")
         fields = ("id", "active", "status", "created_by", "created_at",
-                            "parent_mlalgorithm")
+                            "alg_name")
+    '''
+    def create(self, validated_data):
+        return MLAlgorithmStatus.objects.create(**validated_data)
+    ''' 
+
 
 class MLRequestSerializer(serializers.ModelSerializer):
     class Meta:

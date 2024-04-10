@@ -13,6 +13,9 @@ class Endpoint(models.Model):
     owner = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
 
+    class Meta:
+        unique_together = ('name', 'owner','created_at')
+
 class MLAlgorithm(models.Model):
     '''
     The MLAlgorithm represent the ML algorithm object.
@@ -34,6 +37,9 @@ class MLAlgorithm(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     parent_endpoint = models.ForeignKey(Endpoint, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('name', 'description', 'code', 'version', 'owner', 'created_at', 'parent_endpoint')
+
 class MLAlgorithmStatus(models.Model):
     '''
     The MLAlgorithmStatus represent status of the MLAlgorithm which can change during the time.
@@ -54,7 +60,7 @@ class MLAlgorithmStatus(models.Model):
 
 class MLRequest(models.Model):
     '''
-    The MLRequest will keep information about all requests to ML algorithms.
+    The MLRequest will keep information about all requests to ML algorithms. It will be needed to monitor ML algorithms and run A/B tests.
 
     Attributes:
         input_data: The input data to ML algorithm in JSON format.
