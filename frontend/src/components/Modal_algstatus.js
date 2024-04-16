@@ -42,23 +42,15 @@ export default class CustomModal extends Component {
           <ModalHeader toggle={this.toggleModal}>Example Modal</ModalHeader>
           <ModalBody>
             <FormGroup>
-              <Label for="exampleName">Name</Label>
-              <Input type="text" name="name" id="exampleName" placeholder="Enter your name" />
+              <Label for="statusLabel">status</Label>
+              <Input type="text" name="status" id="statusID" placeholder="Enter status" />
             </FormGroup>
             <FormGroup>
-              <Label for="exampleEmail">Email</Label>
-              <Input type="email" name="email" id="exampleEmail" placeholder="Enter your email" />
+              <Label for="createdbyLabel">Created By</Label>
+              <Input type="text" name="createdby" id="createdbyID" placeholder="Enter who created algorithm" />
             </FormGroup>
             <FormGroup>
-              <Label for="examplePhone">Phone</Label>
-              <Input type="tel" name="phone" id="examplePhone" placeholder="Enter your phone number" />
-            </FormGroup>
-            <FormGroup>
-              <Label for="exampleAddress">Address</Label>
-              <Input type="text" name="address" id="exampleAddress" placeholder="Enter your address" />
-            </FormGroup>
-            <FormGroup>
-              <Label for="exampleDropdown">Dropdown</Label>
+              <Label for="MLLabel">Machine Learning Algorithm</Label>
               <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
                 <DropdownToggle caret>
                   {this.state.selectedOption}

@@ -58,6 +58,10 @@ class MLAlgorithmStatus(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     parent_mlalgorithm = models.ForeignKey(MLAlgorithm, on_delete=models.CASCADE, related_name = "status")
 
+    @property
+    def model_name(self):
+        return self.parent_mlalgorithm.name
+
 class MLRequest(models.Model):
     '''
     The MLRequest will keep information about all requests to ML algorithms. It will be needed to monitor ML algorithms and run A/B tests.

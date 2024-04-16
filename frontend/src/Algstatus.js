@@ -14,7 +14,8 @@ export class Algorithmstatus extends Component{
         active: "",
         created_by: "",
         created_at: "",
-        alg_name: "",
+        parent_mlalgorithm: "",
+        model_name: "",
 
       },
     };
@@ -54,7 +55,7 @@ export class Algorithmstatus extends Component{
     
     return newAlgs.map((alg) => (
       <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
-        <span> {alg.alg_name} </span>
+        <span> {alg.model_name} </span>
         <span> {alg.status} </span>
         <span> {String(alg.active)} </span>
         <span> {alg.created_at} </span>

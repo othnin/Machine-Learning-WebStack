@@ -54,12 +54,8 @@ class MLAlgorithmStatusViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin,
     def perform_create(self, serializer):
         try:
             with transaction.atomic():
-                #Error in POST http://127.0.0.1:8000/api/v1/mlalgorithmstatuses below.
                 instance = serializer.save(active=True)
-                # set active=False for other statuses
                 deactivate_other_statuses(instance)
-
-
 
         except Exception as e:
             raise APIException(str(e))          
