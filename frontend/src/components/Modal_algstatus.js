@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import axios from 'axios';
 
-export const CustomModal = ({ toggle, handleSubmit }) => {
+export const CustomModal = ({ toggle, algList }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Option 1');
+  const [status, setStatus] = useState('');
+  const [createdBy, setCreatedBy] = useState('');
 
   const toggleDropdown = () => {
     setDropdownOpen(prevState => !prevState);
@@ -13,17 +16,40 @@ export const CustomModal = ({ toggle, handleSubmit }) => {
     setSelectedOption(option);
   };
 
+  const handleSubmit = () => {
+    // Find the selected algorithm object
+    const selectedAlgorithm = algList.find(alg => alg.alg_name === selectedOption);
+  
+    // Extract the ID of the parent_mlalgorithm
+    const parentMlAlgorithmId = selectedAlgorithm.parent_mlalgorithm;
+    console.log(parentMlAlgorithmId)
+    const data = {
+      status: status,
+      created_by: createdBy,
+      parent_mlalgorithm: parentMlAlgorithmId  // Pass the ID instead of alg_name
+    };
+  
+    axios.post('/api/v1/mlalgorithmstatuses', data)
+      .then(response => {
+        console.log('POST request successful:', response.data);
+        toggle(); // Close the modal
+      })
+      .catch(error => {
+        console.error('Error making POST request:', error);
+      });
+  };
+  
   return (
     <Modal isOpen={true} toggle={toggle}>
       <ModalHeader toggle={toggle}>Example Modal</ModalHeader>
       <ModalBody>
         <FormGroup>
-          <Label for="statusLabel">status</Label>
-          <Input type="text" name="status" id="statusID" placeholder="Enter status" />
+          <Label for="statusLabel">Status</Label>
+          <Input type="text" name="status" id="statusID" placeholder="Enter status" onChange={(e) => setStatus(e.target.value)} />
         </FormGroup>
         <FormGroup>
           <Label for="createdbyLabel">Created By</Label>
-          <Input type="text" name="createdby" id="createdbyID" placeholder="Enter who created algorithm" />
+          <Input type="text" name="createdby" id="createdbyID" placeholder="Enter who created algorithm" onChange={(e) => setCreatedBy(e.target.value)} />
         </FormGroup>
         <FormGroup>
           <Label for="MLLabel">Machine Learning Algorithm</Label>
@@ -32,9 +58,9 @@ export const CustomModal = ({ toggle, handleSubmit }) => {
               {selectedOption}
             </DropdownToggle>
             <DropdownMenu>
-              <DropdownItem onClick={() => handleOptionSelect('Option 1')}>Option 1</DropdownItem>
-              <DropdownItem onClick={() => handleOptionSelect('Option 2')}>Option 2</DropdownItem>
-              <DropdownItem onClick={() => handleOptionSelect('Option 3')}>Option 3</DropdownItem>
+              {algList.map((algData, index) => (
+                <DropdownItem key={index} onClick={() => handleOptionSelect(algData.alg_name)}>{algData.alg_name}</DropdownItem>
+              ))}
             </DropdownMenu>
           </Dropdown>
         </FormGroup>
@@ -46,5 +72,3 @@ export const CustomModal = ({ toggle, handleSubmit }) => {
     </Modal>
   );
 };
-
-

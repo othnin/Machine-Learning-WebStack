@@ -52,17 +52,30 @@ export function Algorithmstatus() {
     ));
   };
 
+
+
   const renderButton = () => {
+    const uniqueAlgNames = Array.from(new Set(algList.map(alg => alg.alg_name)));
+  
+    // Create an array of objects with unique alg_names and their corresponding parent_mlalgorithm
+    const uniqueAlgData = uniqueAlgNames.map(name => {
+      const parentMlAlgorithm = algList.find(alg => alg.alg_name === name).parent_mlalgorithm;
+      return { alg_name: name, parent_mlalgorithm: parentMlAlgorithm };
+    });
+  
     return (
       <div>
         <Button className="btn btn-secondary mr-2" onClick={() => toggleModal()}>
           Change Algorithm Status
         </Button>
-        {modal && <CustomModal toggle={toggleModal} handleSubmit={handleSubmit} />}
+        {modal && uniqueAlgData.length > 0 && (
+          <CustomModal toggle={toggleModal} handleSubmit={handleSubmit} algList={uniqueAlgData} />
+        )}
       </div>
     );
   };
-  
+
+
 
   return (
     <main className="container">
