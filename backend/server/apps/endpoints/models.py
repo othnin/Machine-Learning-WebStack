@@ -37,6 +37,9 @@ class MLAlgorithm(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
     parent_endpoint = models.ForeignKey(Endpoint, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.name}"
+
     class Meta:
         unique_together = ('name', 'description', 'code', 'version', 'owner', 'created_at', 'parent_endpoint')
 
