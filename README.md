@@ -101,7 +101,7 @@ This Modal allows us to change the different attributes for the ML algorithm. Wh
 
 - [] Ability to pull code from git instead of having it insde the web stack repo.
 
-- [] Add DVC to the site. This way we can load datasets outside the web stack and do all sorts of intresting stuff. [title](https://dvc.org/)
+- [] Add DVC to the site. This way we can load datasets outside the web stack and do all sorts of intresting stuff. [DVC](https://dvc.org/)
 
 
 
