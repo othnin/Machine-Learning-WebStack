@@ -6,6 +6,7 @@ export class Home extends Component{
     return(
       <div>
         <h3>This is the home page</h3>
+        <p>Add any company related information here on how the pages work. General documentation. Cut and paste from the readme, etc.</p>
       </div>
     )
   }

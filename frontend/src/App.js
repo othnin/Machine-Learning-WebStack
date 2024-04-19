@@ -5,7 +5,6 @@ import {Algorithms} from './Algorithms';
 import Endpoints from "./Endpoints";
 import {Algorithmstatus} from './Algstatus';
 //import Algorithmstatus from './Algstatus';
-import {Test} from './test';
 import {BrowserRouter, Route, Routes, NavLink} from 'react-router-dom';
 
 
@@ -22,10 +21,6 @@ function App() {
           <li className="nav-item- m-1">
             <NavLink className="btn btn-light btn-outline-primary" to="/home">
               Home
-            </NavLink>
-
-            <NavLink className="btn btn-light btn-outline-primary" to="/test">
-              test
             </NavLink>
 
             <NavLink className="btn btn-light btn-outline-primary" to="/Algorithms">
@@ -46,7 +41,6 @@ function App() {
 
       <Routes>
         <Route path='/home' element={<Home/>}/>
-        <Route path='/test' element={<Test/>}/>
         <Route path='/algorithms' element={<Algorithms/>}/>
         <Route path='/endpoints' element={<Endpoints/>}/>
         <Route path='/algstatus' element={<Algorithmstatus/>}/>
