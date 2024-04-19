@@ -1,8 +1,10 @@
 import './App.css';
 import {Home} from './Home';
 import {Algorithms} from './Algorithms';
-import {Endpoints} from './Endpoints';
+//import {Endpoints} from './Endpoints';  //For some reason this stopped working?
+import Endpoints from "./Endpoints";
 import {Algorithmstatus} from './Algstatus';
+//import Algorithmstatus from './Algstatus';
 import {Test} from './test';
 import {BrowserRouter, Route, Routes, NavLink} from 'react-router-dom';
 

@@ -6,6 +6,7 @@ import axios from "axios";
 export function Algorithmstatus() {
   const [algList, setAlgList] = useState([]);
   const [modal, setModal] = useState(false);
+  {/* 
   const [activeAlg, setActiveAlg] = useState({
     status: "",
     active: "",
@@ -14,6 +15,7 @@ export function Algorithmstatus() {
     parent_mlalgorithm: "",
     alg_name: "",
   });
+*/}
 
   useEffect(() => {
     refreshList();
@@ -35,10 +37,12 @@ export function Algorithmstatus() {
     alert("save" + JSON.stringify(alg));
   };
 
+  {/* 
   const changeAlgStatus = () => {
     setActiveAlg(algList);
     toggleModal();
   };
+*/}
 
   const renderAlgs = () => {
     return algList.map((alg) => (
@@ -54,7 +58,7 @@ export function Algorithmstatus() {
 
 
 
-  const renderButton = () => {
+  const changeStatusButton = () => {
     const uniqueAlgNames = Array.from(new Set(algList.map(alg => alg.alg_name)));
   
     // Create an array of objects with unique alg_names and their corresponding parent_mlalgorithm
@@ -99,7 +103,7 @@ export function Algorithmstatus() {
       <div className="row">
         <div className="col-md-10 col-sm-8 mx-auto p-0">
           <div className="card p-3">
-            {renderButton()}             
+            {changeStatusButton()}             
           </div>
         </div>
       </div>
@@ -107,3 +111,4 @@ export function Algorithmstatus() {
   );
 }
 
+export default Algorithmstatus;

@@ -22,7 +22,7 @@ export const CustomModal = ({ toggle, algList }) => {
   
     // Extract the ID of the parent_mlalgorithm
     const parentMlAlgorithmId = selectedAlgorithm.parent_mlalgorithm;
-    console.log(parentMlAlgorithmId)
+
     const data = {
       status: status,
       created_by: createdBy,
@@ -41,7 +41,7 @@ export const CustomModal = ({ toggle, algList }) => {
   
   return (
     <Modal isOpen={true} toggle={toggle}>
-      <ModalHeader toggle={toggle}>Example Modal</ModalHeader>
+      <ModalHeader toggle={toggle}>Change Algorithm Status</ModalHeader>
       <ModalBody>
         <FormGroup>
           <Label for="statusLabel">Status</Label>
