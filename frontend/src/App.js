@@ -17,26 +17,28 @@ function App() {
       </h3>
 
       <nav className="navbar navbar-expand-sm bg-light navbar-dark">
-        <ul className="navbar-nav">
-          <li className="nav-item- m-1">
-            <NavLink className="btn btn-light btn-outline-primary" to="/home">
-              Home
-            </NavLink>
-
-            <NavLink className="btn btn-light btn-outline-primary" to="/Algorithms">
-              MLAlgorithms
-            </NavLink>
-
-            <NavLink className="btn btn-light btn-outline-primary" to="/Endpoints">
-              Endpoints
-            </NavLink>
-
-            <NavLink className="btn btn-light btn-outline-primary" to="/Algstatus">
-              MLAlgorithm Status
-            </NavLink>
-
-          </li>
-          </ul>
+        <ul className="navbar-nav w-100 justify-content-between">
+        <li className="nav-item">
+          <NavLink className="btn btn-light btn-outline-primary" to="/home">
+            Home
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="btn btn-light btn-outline-primary" to="/Algorithms">
+            MLAlgorithms
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="btn btn-light btn-outline-primary" to="/Endpoints">
+            Endpoints
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink className="btn btn-light btn-outline-primary" to="/Algstatus">
+            MLAlgorithm Status
+          </NavLink>
+        </li>
+        </ul>
       </nav>
 
       <Routes>
