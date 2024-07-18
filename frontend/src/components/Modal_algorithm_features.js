@@ -25,7 +25,7 @@ export default class CustomModal extends Component {
 
     return (
       <Modal isOpen={true} toggle={toggle} >
-        <ModalHeader toggle={toggle}>ML Algorithm</ModalHeader>
+        <ModalHeader toggle={toggle}>ML Algorithm Description</ModalHeader>
         <ModalBody>
           <Form>
             <FormGroup>

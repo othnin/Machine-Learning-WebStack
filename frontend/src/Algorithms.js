@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Modal from "./components/Modal_algorithm";
+import ModalAlgFeatures from "./components/Modal_algorithm_features";
 import axios from "axios";
 
 /**
@@ -106,7 +106,7 @@ export class Algorithms extends Component {
           </div>
         </div>
         {this.state.modal ? (
-          <Modal activeAlg={this.state.activeAlg} toggle={this.toggle} />
+          <ModalAlgFeatures activeAlg={this.state.activeAlg} toggle={this.toggle} />
         ) : null}
       </main>
     );
