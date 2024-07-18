@@ -147,11 +147,7 @@ class StopABTestView(views.APIView):
     def post(self, request, ab_test_id, format=None):
 
         try:
-            print("Start StopABTestView")
             ab_test = ABTest.objects.get(pk=ab_test_id)
-            print("AD TEST")
-            print(ab_test)
-
             if ab_test.ended_at is not None:
                 return Response({"message": "AB Test already finished."})
 
@@ -160,13 +156,11 @@ class StopABTestView(views.APIView):
             all_responses_1 = MLRequest.objects.filter(parent_mlalgorithm=ab_test.parent_mlalgorithm_1, created_at__gt = ab_test.created_at, created_at__lt = date_now).count()
             correct_responses_1 = MLRequest.objects.filter(parent_mlalgorithm=ab_test.parent_mlalgorithm_1, created_at__gt = ab_test.created_at, created_at__lt = date_now, response=F('feedback')).count()
             accuracy_1 = correct_responses_1 / float(all_responses_1)
-            print(all_responses_1, correct_responses_1, accuracy_1)
 
             # alg #2 accuracy
             all_responses_2 = MLRequest.objects.filter(parent_mlalgorithm=ab_test.parent_mlalgorithm_2, created_at__gt = ab_test.created_at, created_at__lt = date_now).count()
             correct_responses_2 = MLRequest.objects.filter(parent_mlalgorithm=ab_test.parent_mlalgorithm_2, created_at__gt = ab_test.created_at, created_at__lt = date_now, response=F('feedback')).count()
             accuracy_2 = correct_responses_2 / float(all_responses_2)
-            print(all_responses_2, correct_responses_2, accuracy_2)
 
             # select algorithm with higher accuracy
             alg_id_1, alg_id_2 = ab_test.parent_mlalgorithm_1, ab_test.parent_mlalgorithm_2

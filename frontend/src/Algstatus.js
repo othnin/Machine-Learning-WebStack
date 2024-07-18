@@ -3,24 +3,25 @@ import { Button } from 'reactstrap';
 import { CustomModal } from "./components/Modal_algstatus";
 import axios from "axios";
 
-export function Algorithmstatus() {
+/**
+ * Renders the ML Algorithm Status List component.
+ * @returns {JSX.Element} The ML Algorithm Status List component.
+ */
+//export function Algorithmstatus() {
+const Algorithmstatus = () => {
   const [algList, setAlgList] = useState([]);
   const [modal, setModal] = useState(false);
-  {/* 
-  const [activeAlg, setActiveAlg] = useState({
-    status: "",
-    active: "",
-    created_by: "",
-    created_at: "",
-    parent_mlalgorithm: "",
-    alg_name: "",
-  });
-*/}
 
+  /**
+   * Fetches the list of ML algorithm statuses from the API.
+   */
   useEffect(() => {
     refreshList();
   }, []);
 
+  /**
+   * Refreshes the list of ML algorithm statuses by making a GET request to the API.
+   */
   const refreshList = () => {
     axios
       .get("/api/v1/mlalgorithmstatuses")
@@ -28,22 +29,26 @@ export function Algorithmstatus() {
       .catch((err) => console.log(err));
   };
 
+  /**
+   * Toggles the modal state.
+   */
   const toggleModal = () => {
     setModal(!modal);
   };
 
+  /**
+   * Handles the form submission.
+   * @param {Object} alg - The algorithm object.
+   */
   const handleSubmit = (alg) => {
     toggleModal();
     alert("save" + JSON.stringify(alg));
   };
 
-  {/* 
-  const changeAlgStatus = () => {
-    setActiveAlg(algList);
-    toggleModal();
-  };
-*/}
-
+  /**
+   * Renders the list of ML algorithm statuses.
+   * @returns {JSX.Element[]} The list of ML algorithm statuses.
+   */
   const renderAlgs = () => {
     return algList.map((alg) => (
       <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
@@ -56,17 +61,19 @@ export function Algorithmstatus() {
     ));
   };
 
-
-
+  /**
+   * Renders the change status button and modal.
+   * @returns {JSX.Element} The change status button and modal.
+   */
   const changeStatusButton = () => {
     const uniqueAlgNames = Array.from(new Set(algList.map(alg => alg.alg_name)));
-  
+
     // Create an array of objects with unique alg_names and their corresponding parent_mlalgorithm
     const uniqueAlgData = uniqueAlgNames.map(name => {
       const parentMlAlgorithm = algList.find(alg => alg.alg_name === name).parent_mlalgorithm;
       return { alg_name: name, parent_mlalgorithm: parentMlAlgorithm };
     });
-  
+
     return (
       <div>
         <Button className="btn btn-secondary mr-2" onClick={() => toggleModal()}>
@@ -78,8 +85,6 @@ export function Algorithmstatus() {
       </div>
     );
   };
-
-
 
   return (
     <main className="container">

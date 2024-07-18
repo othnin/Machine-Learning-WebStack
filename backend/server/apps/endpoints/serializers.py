@@ -25,7 +25,7 @@ class MLAlgorithmSerializer(serializers.ModelSerializer):
         model = MLAlgorithm
         read_only_fields = ("id", "name", "description", "code",
                             "version", "owner", "created_at",
-                            "parent_endpoint", "current_status")
+                            "parent_endpoint", "current_status", "url")
         fields = read_only_fields
 
 

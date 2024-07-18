@@ -19,7 +19,8 @@ try:
                             algorithm_version="0.0.1",
                             owner="Piotr",
                             algorithm_description="Random Forest with simple pre- and post-processing",
-                            algorithm_code=inspect.getsource(RandomForestClassifier))
+                            algorithm_code=inspect.getsource(RandomForestClassifier),
+                            url='internal')
     
 
     # Extra Trees classifier
@@ -32,7 +33,8 @@ try:
                             algorithm_version="0.0.1",
                             owner="Piotr",
                             algorithm_description="Extra Trees with simple pre- and post-processing",
-                            algorithm_code=inspect.getsource(RandomForestClassifier))
+                            algorithm_code=inspect.getsource(RandomForestClassifier),
+                            url='internal')
 
 except Exception as e:
     print("Exception while loading the algorithms to the registry,", str(e))

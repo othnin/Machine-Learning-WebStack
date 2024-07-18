@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { CustomModal } from "./components/Modal_endpoint";
 
+/**
+ * Represents the Endpoints component. Functional Component.
+ * This component displays a list of endpoints and allows the user to open a modal for each endpoint.
+ *
+ * @returns {JSX.Element} The Endpoints component.
+ */
 const Endpoints = () => {
   const [endpointList, setEndpointList] = useState([]);
   const [activeEndpoint, setActiveEndpoint] = useState({

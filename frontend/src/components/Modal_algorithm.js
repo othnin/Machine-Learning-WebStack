@@ -88,6 +88,16 @@ export default class CustomModal extends Component {
                 value={this.state.activeAlg.code}
               />
             </FormGroup>
+            <FormGroup>
+              <Label for="ml-location">Location</Label>
+              <Input
+                readOnly={true}
+                type="textarea"
+                id="ml-location"
+                name="location"
+                value={this.state.activeAlg.url}
+              />
+            </FormGroup>
           </Form>
         </ModalBody>
         <ModalFooter>

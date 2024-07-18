@@ -29,6 +29,7 @@ class MLAlgorithm(models.Model):
         created_at: The date when MLAlgorithm was added.
         parent_endpoint: The reference to the Endpoint.
     '''
+    url = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
     description = models.CharField(max_length=1000)
     code = models.CharField(max_length=50000)
