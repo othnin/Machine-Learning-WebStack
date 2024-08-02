@@ -21,6 +21,7 @@ class MLAlgorithm(models.Model):
     The MLAlgorithm represent the ML algorithm object.
 
     Attributes:
+        url: Set to either internal or the URL of the github repository.
         name: The name of the algorithm.
         description: The short description of how the algorithm works.
         code: The code of the algorithm.
@@ -56,7 +57,13 @@ class MLAlgorithmStatus(models.Model):
         parent_mlalgorithm: The reference to corresponding MLAlgorithm.
 
     '''
-    status = models.CharField(max_length=128)
+    class StatusChoices(models.TextChoices):
+        TESTING = 'T'
+        STAGING = 'S'
+        PRODUCTION = 'P'
+        AB_TESTING = 'A'
+    #MLAlgorithStatus.get_status_display??
+    status = models.CharField(choices=StatusChoices.choices, max_length=1)
     active = models.BooleanField()
     created_by = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
