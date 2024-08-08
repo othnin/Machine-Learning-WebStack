@@ -1,5 +1,7 @@
 import React, { Component } from "react";
+import { Button } from 'reactstrap';
 import ModalAlgFeatures from "./components/Modal_algorithm_features";
+import ModalAddGitHub from "./components/Modal_AddGitHubRepo";
 import axios from "axios";
 
 /**
@@ -10,7 +12,8 @@ export class Algorithms extends Component {
     super(props);
     this.state = {
       algList: [],
-      modal: false,
+      modalAlgFeatures: false,
+      modalAddGit: false,
       activeAlg: {
         name: "",
         description: "",
@@ -42,19 +45,27 @@ export class Algorithms extends Component {
   };
 
   /**
-   * Toggles the modal state between open and closed.
+   * Toggles the modalAlgFeatures state between open and closed.
    */
-  toggle = () => {
-    this.setState({ modal: !this.state.modal });
+  toggleAlgFeatures = () => {
+    this.setState({ modalAlgFeatures: !this.state.modalAlgFeatures });
   };
 
   /**
-   * Sets the active algorithm and opens the modal.
+   * Sets the active algorithm and opens the modalAlgFeatures.
    * @param {Object} alg - The algorithm object to view.
    */
   viewAlg = (alg) => {
-    this.setState({ activeAlg: alg, modal: !this.state.modal });
+    this.setState({ activeAlg: alg, modalAlgFeatures: !this.state.modalAlgFeatures });
   };
+
+  toggleAddGit = () => {
+    this.setState({ modalAddGit: !this.state.modalAddGit });
+  }
+
+  addRepo = () => {
+    this.toggleAddGit();
+  }
 
   /**
    * Renders the list of ML algorithms.
@@ -64,20 +75,14 @@ export class Algorithms extends Component {
     const newAlgs = this.state.algList;
 
     return newAlgs.map((alg) => (
-      <li
-        key={alg.id}
-        className="list-group-item d-flex justify-content-between align-items-center"
-      >
+      <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center" >
         <span> {alg.name} </span>
         <span> {alg.description} </span>
         <span>
           <span> {alg.version} {' '} </span>
-          <button
-            className="btn btn-secondary mr-2"
-            onClick={() => this.viewAlg(alg)}
-          >
+          <Button className="btn btn-secondary mr-2" onClick={() => this.viewAlg(alg)} >
             View
-          </button>
+          </Button>
         </span>
       </li>
     ));
@@ -105,8 +110,20 @@ export class Algorithms extends Component {
             </div>
           </div>
         </div>
-        {this.state.modal ? (
-          <ModalAlgFeatures activeAlg={this.state.activeAlg} toggle={this.toggle} />
+        <div className="row">
+        <div className="col-md-10 col-sm-8 mx-auto p-0">
+          <div className="card p-3">
+          <button className="btn btn-secondary mr-2" onClick={this.addRepo} >
+            Add GitHub Repo
+          </button>
+          </div>
+        </div>
+      </div>        
+        {this.state.modalAlgFeatures ? (
+          <ModalAlgFeatures activeAlg={this.state.activeAlg} toggle={this.toggleAlgFeatures} />
+        ) : null}
+        {this.state.modalAddGit ? (
+          <ModalAddGitHub toggle={this.toggleAddGit} />
         ) : null}
       </main>
     );

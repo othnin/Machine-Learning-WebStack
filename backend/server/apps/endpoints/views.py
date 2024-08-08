@@ -16,9 +16,11 @@ from apps.endpoints.serializers import MLRequestSerializer
 from apps.endpoints.models import ABTest
 from apps.endpoints.serializers import ABTestSerializer
 
-import datetime
-import json
+import datetime, os, shutil, git, json
 from numpy.random import rand
+from django.utils import timezone
+from datetime import datetime
+
 from apps.ml.registry import MLRegistry
 from server.load_algorithm import registry
 from django.db import transaction
@@ -193,3 +195,102 @@ class StopABTestView(views.APIView):
                             status=status.HTTP_400_BAD_REQUEST
             )
         return Response({"message": "AB Test finished.", "summary": summary})
+    
+
+class GetGitHubRepo(views.APIView):
+    def post(self, request, format=None):
+        try:
+            data = request.data
+            if 'url' not in data:
+                return Response({"status": "Error", "message": "URL not provided in request data"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            repo_url = data['url']
+            repo_name = repo_url.split('/')[-1]
+            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name) #TODO: Fix hard coded path
+
+            if os.path.isdir(local_path):
+                print(f'Repository already exists at location: {local_path}')
+                shutil.rmtree(local_path)
+                print(f'Repository at {local_path} has been removed.')
+
+            # Clone the repository
+            repo = git.Repo.clone_from(repo_url, local_path)
+
+            # Dictionary to hold the branch and commit information
+            response_data = {}
+            commits_seen = set()
+
+            # Function to process commits
+            def process_commits(branch_name):
+                branch_commits = []
+                for commit in repo.iter_commits(branch_name):
+                    if commit.hexsha not in commits_seen:
+                        commit_info = {
+                            'commit_number': commit.hexsha,
+                            'author': commit.author.name,
+                            'message': commit.message,
+                            'date': timezone.make_aware(datetime.fromtimestamp(commit.committed_date)).isoformat(),
+                        }
+                        branch_commits.append(commit_info)
+                        commits_seen.add(commit.hexsha)
+                return branch_commits
+
+            # List of branches to process with priority to the "HEAD" branch
+            branches = repo.branches
+            priority_branches = ['HEAD']
+
+            repo.remotes.origin.fetch()
+            other_branches = [branch.name for branch in repo.remote().refs if branch not in priority_branches]
+
+            # Process main or master branch first
+            for priority_branch in priority_branches:
+                if priority_branch in [branch.name for branch in branches]:
+                    repo.git.checkout(priority_branch)
+                    response_data[priority_branch] = process_commits(priority_branch)
+                    break
+
+            # Process the rest of the branches
+            for branch_name in other_branches:
+                repo.git.checkout(branch_name)
+                response_data[branch_name] = process_commits(branch_name)
+
+            return Response({"status": "Repository processed successfully.", "data": response_data})
+
+        except Exception as e:
+            return Response({"status": "Error", "message": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+
+class SetGitHubRepo(views.APIView):
+    def post(self, request, format=None):
+        try:
+            data = request.data
+            print(data)
+            repo_url = data['url']
+            repo_name = repo_url.split('/')[-1]
+            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name)
+            repo = git.Repo(local_path) 
+            repo.git.checkout(data['commit_number'])
+            '''
+            if 'url' not in data:
+                return Response({"status": "Error", "message": "URL not provided in request data"},
+                                status=status.HTTP_400_BAD_REQUEST)
+            print("0")
+            repo_url = data['url']
+            repo_name = repo_url.split('/')[-1]
+            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name) #TODO: Fix hard coded path
+            print("1")
+            if not os.path.isdir(local_path):
+                return Response({"status": "Error", "message": "Repository does not exist at the specified location."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # Load the algorithm from the repository
+            #registry.load_algorithm(local_path)
+            print("Return ok")
+            '''
+            return Response({"message": "Algorithm loaded successfully."})
+
+        except Exception as e:
+            return Response({"status": "Error", "message": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
