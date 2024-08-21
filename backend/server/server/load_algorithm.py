@@ -33,7 +33,7 @@ try:
                             algorithm_version="0.0.1",
                             owner="Piotr",
                             algorithm_description="Extra Trees with simple pre- and post-processing",
-                            algorithm_code=inspect.getsource(RandomForestClassifier),
+                            algorithm_code=inspect.getsource(ExtraTreesClassifier),
                             url='internal')
 
 except Exception as e:

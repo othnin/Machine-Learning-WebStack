@@ -16,6 +16,8 @@ from apps.endpoints.serializers import MLRequestSerializer
 from apps.endpoints.models import ABTest
 from apps.endpoints.serializers import ABTestSerializer
 
+
+
 import datetime, os, shutil, git, json
 from numpy.random import rand
 from django.utils import timezone
@@ -25,6 +27,7 @@ from apps.ml.registry import MLRegistry
 from server.load_algorithm import registry
 from django.db import transaction
 from django.db.models import F
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -200,6 +203,7 @@ class StopABTestView(views.APIView):
 class GetGitHubRepo(views.APIView):
     def post(self, request, format=None):
         try:
+            print("GetGitHubRepo")
             data = request.data
             if 'url' not in data:
                 return Response({"status": "Error", "message": "URL not provided in request data"},
@@ -207,14 +211,15 @@ class GetGitHubRepo(views.APIView):
 
             repo_url = data['url']
             repo_name = repo_url.split('/')[-1]
-            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name) #TODO: Fix hard coded path
-
+            local_path = os.path.join(os.getenv("ML_ALGS_LOCATION"), repo_name)
             if os.path.isdir(local_path):
                 print(f'Repository already exists at location: {local_path}')
                 shutil.rmtree(local_path)
                 print(f'Repository at {local_path} has been removed.')
 
             # Clone the repository
+            print(repo_url)
+            print(local_path)
             repo = git.Repo.clone_from(repo_url, local_path)
 
             # Dictionary to hold the branch and commit information
@@ -266,31 +271,57 @@ class SetGitHubRepo(views.APIView):
     def post(self, request, format=None):
         try:
             data = request.data
-            print(data)
             repo_url = data['url']
             repo_name = repo_url.split('/')[-1]
-            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name)
+            print("REpo name")
+            print(os.getenv("ML_ALGS_LOCATION"))
+            local_path = os.path.join(os.getenv("ML_ALGS_LOCATION"), repo_name)
             repo = git.Repo(local_path) 
-            repo.git.checkout(data['commit_number'])
-            '''
-            if 'url' not in data:
-                return Response({"status": "Error", "message": "URL not provided in request data"},
-                                status=status.HTTP_400_BAD_REQUEST)
-            print("0")
-            repo_url = data['url']
-            repo_name = repo_url.split('/')[-1]
-            local_path = os.path.join("/home/achilles/Documents/Machine-Learning-WebStack/backend/server/apps/ml", repo_name) #TODO: Fix hard coded path
-            print("1")
-            if not os.path.isdir(local_path):
-                return Response({"status": "Error", "message": "Repository does not exist at the specified location."},
-                                status=status.HTTP_400_BAD_REQUEST)
+            print("Commot number" + data['commit']['commit_number'])
+            repo.git.checkout(data['commit']['commit_number'])
+            status_choices =  MLAlgorithmStatus.StatusChoices.choices
 
+            '''
             # Load the algorithm from the repository
             #registry.load_algorithm(local_path)
             print("Return ok")
             '''
-            return Response({"message": "Algorithm loaded successfully."})
+            return Response({"message": "Algorithm loaded successfully.", "status": status_choices})
 
         except Exception as e:
+            return Response({"status": "Error", "message": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+'''
+{'commit': {'commit_number': 'e73fcc0f68aa748690ffc87ffe82466b61e7f9af', 'author': 'othnin', 'message': 'Added test commit to dev\n', 'date': '2024-08-06T20:48:46+00:00', 
+'branch': 'origin/dev'}, 
+'url': 'https://github.com/othnin/ML_test_alg_1', 
+'endpointName': 'endpoint', 
+'algName': 'AlgName', 
+'description': 'This is the description of test title'}
+'''
+
+class SaveGitHubRepo(views.APIView):
+    def post(self, request, format=None):
+        try:
+            data = request.data
+            print(data)
+            print("REpo name")
+            print(os.getenv("ML_ALGS_LOCATION"))
+            alg_code_location = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].split('/')[-1])
+            print(alg_code_location)
+            
+            registry.add_algorithm(endpoint_name=data['endpointName'],
+                                algorithm_object=None,
+                                algorithm_name=data['algName'],
+                                algorithm_status=data["algStatus"],
+                                algorithm_version=data['commit']['commit_number'],
+                                owner=data['commit']['author'],
+                                algorithm_description=data['description'],
+                                algorithm_code="",
+                                url=data['url'])
+            return Response({"status": "Repository saved successfully."})
+        except Exception as e:
+            print(f"Error: {e}")
             return Response({"status": "Error", "message": str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
