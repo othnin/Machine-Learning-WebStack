@@ -89,9 +89,9 @@ This Modal allows us to change the different attributes for the ML algorithm. Wh
 
 ## TODO:
 
-- [] Enum the database status values to production, 
+- [x] Enum the database status values to production, 
 
-- [] Fix react columns and some formatting looks pretty ugly.
+- [x] Fix react columns and some formatting looks pretty ugly.
 
 - [] Security Hardening. This site hasn't been reviewed for production deployment on public facing server. It doesn't even have a logon system right now.
 
@@ -99,7 +99,7 @@ This Modal allows us to change the different attributes for the ML algorithm. Wh
 
 - [] Add Celery to Django for long running jobs
 
-- [] Ability to pull code from git instead of having it insde the web stack repo.
+- [x] Ability to pull code from git instead of having it insde the web stack repo. [AddGitHubRepo](READMEGit.md)
 
 - [] Add DVC to the site. This way we can load datasets outside the web stack and do all sorts of intresting stuff. [DVC](https://dvc.org/)
 
