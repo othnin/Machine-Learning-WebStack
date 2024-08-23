@@ -23,6 +23,10 @@ Current deployment capabilities:
 
 The backend in built on django and uses the Django RestFramework while the frontend is using React. 
 
+- I am using a .env file here backend/server/server/.env. You will need to add one with the following that points to where your code is going to reside on your local server for github integration. Also, in the future more sensitive info will be moved here.
+  ```
+  ML_ALGS_LOCATION=
+```
 - You can build using the simple way that I use for dev work. Build the frontend with the npm tools shown in the README files in frontend/. Pretty basic stuff. Start that with `npm start`. On the backend I have a requirements file: docker/backend/requirements.txt. Pip it whatever. Run the backend with `python manage.py runserver` inside backend/server. Note: If your going to run it this way you will probably need to go into the frontend/package.json and change the proxy line to: "proxy": "http://localhost:8000",. The way docker containers communicate and the way this setup is different and I haven't found a way to get both to work yet.
 
 - For production/test you will want to use the Docker containers. Use the docker-compose.yml file it will build both the frontend and backend. Basic commands
@@ -33,7 +37,7 @@ Note: Make sure that the frontend/package.json proxy line is: "proxy": "http://w
 
 ## General Overview for use:
 
-1. End User builds/trains his ML model in python. Saves encoders, datasets, etc in research/. The python code for the pipeline needs to be saved 
+1. End User builds/trains there ML model in python. Saves encoders, datasets, etc in research/. The python code for the pipeline needs to be saved 
 in backend/server/apps/ml/<projectname>. The example we have loaded is income_classifier. Inside there put in your files with the python pipeline code. The compute_predict function is required at this time.
 
 2. SW Engineer will add the code into the load_algorithms.py file. This loads into the registry that holds all the ML Algorithms.
