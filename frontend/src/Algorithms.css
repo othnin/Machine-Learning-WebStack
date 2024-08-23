@@ -1,0 +1,13 @@
+.alg-name {
+    width: 30%;
+  }
+  
+  .alg-description {
+    width: 50%;
+  }
+  
+  .alg-version {
+    width: 20%;
+    display: flex;
+    justify-content: space-between;
+  }

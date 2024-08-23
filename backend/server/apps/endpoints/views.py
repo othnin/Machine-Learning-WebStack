@@ -23,8 +23,8 @@ from numpy.random import rand
 from django.utils import timezone
 from datetime import datetime
 
-from apps.ml.registry import MLRegistry
 from server.load_algorithm import registry
+from apps.endpoints.utils import AlgorithmLoader
 from django.db import transaction
 from django.db.models import F
 from django.views.decorators.csrf import csrf_exempt
@@ -78,7 +78,6 @@ View for predictions that can accept POST requests w/JSON data and forward it to
 '''
 class PredictView(views.APIView):
     def post(self, request, endpoint_name, format=None):
-
         algorithm_status = self.request.query_params.get("status", "production")
         algorithm_version = self.request.query_params.get("version")
 
@@ -203,23 +202,19 @@ class StopABTestView(views.APIView):
 class GetGitHubRepo(views.APIView):
     def post(self, request, format=None):
         try:
-            print("GetGitHubRepo")
             data = request.data
             if 'url' not in data:
                 return Response({"status": "Error", "message": "URL not provided in request data"},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            repo_url = data['url']
+            repo_url = data['url'].rstrip('/')
             repo_name = repo_url.split('/')[-1]
             local_path = os.path.join(os.getenv("ML_ALGS_LOCATION"), repo_name)
             if os.path.isdir(local_path):
-                print(f'Repository already exists at location: {local_path}')
+                print(f'Repository already exists at location, removing: {local_path}')
                 shutil.rmtree(local_path)
-                print(f'Repository at {local_path} has been removed.')
 
             # Clone the repository
-            print(repo_url)
-            print(local_path)
             repo = git.Repo.clone_from(repo_url, local_path)
 
             # Dictionary to hold the branch and commit information
@@ -271,55 +266,43 @@ class SetGitHubRepo(views.APIView):
     def post(self, request, format=None):
         try:
             data = request.data
-            repo_url = data['url']
+            repo_url = data['url'].rstrip('/')
             repo_name = repo_url.split('/')[-1]
-            print("REpo name")
-            print(os.getenv("ML_ALGS_LOCATION"))
             local_path = os.path.join(os.getenv("ML_ALGS_LOCATION"), repo_name)
             repo = git.Repo(local_path) 
-            print("Commot number" + data['commit']['commit_number'])
             repo.git.checkout(data['commit']['commit_number'])
             status_choices =  MLAlgorithmStatus.StatusChoices.choices
-
-            '''
-            # Load the algorithm from the repository
-            #registry.load_algorithm(local_path)
-            print("Return ok")
-            '''
             return Response({"message": "Algorithm loaded successfully.", "status": status_choices})
 
         except Exception as e:
             return Response({"status": "Error", "message": str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
         
-'''
-{'commit': {'commit_number': 'e73fcc0f68aa748690ffc87ffe82466b61e7f9af', 'author': 'othnin', 'message': 'Added test commit to dev\n', 'date': '2024-08-06T20:48:46+00:00', 
-'branch': 'origin/dev'}, 
-'url': 'https://github.com/othnin/ML_test_alg_1', 
-'endpointName': 'endpoint', 
-'algName': 'AlgName', 
-'description': 'This is the description of test title'}
-'''
+
 
 class SaveGitHubRepo(views.APIView):
     def post(self, request, format=None):
         try:
             data = request.data
-            print(data)
-            print("REpo name")
-            print(os.getenv("ML_ALGS_LOCATION"))
-            alg_code_location = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].split('/')[-1])
-            print(alg_code_location)
-            
+            train_file = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].rstrip('/').split('/')[-1], data['trainFileName'])
+            source_file = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].rstrip('/').split('/')[-1], data['sourceFileName'])
+            enocder_file = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].rstrip('/').split('/')[-1], data['encoderFileName'])
+            model_file = os.path.join(os.getenv("ML_ALGS_LOCATION"), data['url'].rstrip('/').split('/')[-1], data['modelFileName'])
+            _ = AlgorithmLoader(source_file)
+                                                                                                                         
+            algorithm_object = AlgorithmLoader.MachineAlgsClass
+            algorithm_object_instance = algorithm_object(train_file, enocder_file, model_file)
+
             registry.add_algorithm(endpoint_name=data['endpointName'],
-                                algorithm_object=None,
+                                algorithm_object=algorithm_object_instance, 
                                 algorithm_name=data['algName'],
                                 algorithm_status=data["algStatus"],
                                 algorithm_version=data['commit']['commit_number'],
                                 owner=data['commit']['author'],
                                 algorithm_description=data['description'],
-                                algorithm_code="",
+                                algorithm_code=AlgorithmLoader.machine_algorithm,
                                 url=data['url'])
+                                
             return Response({"status": "Repository saved successfully."})
         except Exception as e:
             print(f"Error: {e}")

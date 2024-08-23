@@ -25,6 +25,10 @@ const ModalAddGitHubFeatures = ({ toggle, statusChoices, initialData, handleClos
     URL: initialData['url'],
     branch: initialData['commit']['branch'],
     commitNum: initialData['commit']['commit_number'],
+    sourceFileName: '',
+    trainFileName: '',
+    encoderFileName: '',
+    modelFileName: ''
   });
 
   //Ensure that initialData is merged w/the default values when it is available
@@ -37,15 +41,17 @@ const ModalAddGitHubFeatures = ({ toggle, statusChoices, initialData, handleClos
     }
   }, [initialData]);
 
-
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    //console.log(`Input changed: ${name} = ${value}`); // Debugging line
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    // Apply no spaces rule only for endpointName
+    if (name === 'endpointName' && /\s/.test(value)) {
+      alert('No spaces allowed in the endpoint name.');
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -87,7 +93,7 @@ const ModalAddGitHubFeatures = ({ toggle, statusChoices, initialData, handleClos
             />
           </FormGroup>
           <FormGroup>
-            <Label for="alg-status">Algorithm Status</Label>
+          <Label for="alg-status">Algorithm Status</Label>
             <Input
               type="select"
               id="alg-status"
@@ -96,7 +102,7 @@ const ModalAddGitHubFeatures = ({ toggle, statusChoices, initialData, handleClos
               onChange={handleInputChange}
             >
               {statusChoices.map(choice => (
-                <option key={choice.value} value={choice.value}>
+                <option key={choice.value} value={choice.text}>
                   {choice.text}
                 </option>
               ))}
@@ -152,7 +158,46 @@ const ModalAddGitHubFeatures = ({ toggle, statusChoices, initialData, handleClos
               readOnly
             />
           </FormGroup>
-          {/* Add other form fields as needed */}
+          <FormGroup>
+            <Label for="sourcefile-id">Source File Name</Label>
+            <Input
+              type="text"
+              id="sourcefile-id"
+              name="sourceFileName"
+              value={formData.sourceFileName}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="trainFile-id">Training File Name</Label>
+            <Input
+              type="text"
+              id="trainFile-id"
+              name="trainFileName"
+              value={formData.trainFileName}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="encoderFile-id">Encoder File Name</Label>
+            <Input
+              type="text"
+              id="encoderFile-id"
+              name="encoderFileName"
+              value={formData.encoderFileName}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="modelFile-id">Model File Name</Label>
+            <Input
+              type="text"
+              id="modelFile-id"
+              name="modelFileName"
+              value={formData.modelFileName}
+              onChange={handleInputChange}
+            />
+          </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>

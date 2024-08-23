@@ -3,6 +3,8 @@ import { Button } from 'reactstrap';
 import ModalAlgFeatures from "./components/Modal_algorithm_features";
 import ModalAddGitHub from "./components/Modal_AddGitHubRepo";
 import axios from "axios";
+import './Algorithms.css';
+
 
 /**
  * Algorithms component that displays a list of ML algorithms.
@@ -79,20 +81,22 @@ const Algorithms = () => {
    * @returns {JSX.Element[]} - An array of JSX elements representing the ML algorithms.
    */
   const renderAlgs = () => {
-    return algList.map((alg) => (
-      <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
-        <span>{alg.name}</span>
-        <span>{alg.description}</span>
-        <span>
-          <span>{alg.version} {' '}</span>
-          <Button className="btn btn-secondary mr-2" onClick={() => viewAlg(alg)}>
-            View
-          </Button>
-        </span>
-      </li>
-    ));
+    return algList.map((alg) => {
+      const truncatedVersion = alg.version.length > 10 ? alg.version.substring(0, 10) + '...' : alg.version;
+      return (
+        <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
+          <span className="alg-name">{alg.name}</span>
+          <span className="alg-description">{alg.description}</span>
+          <span className="alg-version">
+            <span>{truncatedVersion}</span>
+            <Button className="btn btn-secondary mr-2" onClick={() => viewAlg(alg)}>
+              View
+            </Button>
+          </span>
+        </li>
+      );
+    });
   };
-
   return (
     <main className="container">
       <h1 className="text-white text-uppercase text-center my-4">
@@ -103,11 +107,9 @@ const Algorithms = () => {
           <div className="card p-3">
             <ul className="list-group list-group-flush border-top-0">
               <li className="list-group-item d-flex justify-content-between align-items-center">
-                <span>Name</span>
-                <span>Description</span>
-                <div style={{ position: "relative", left: "-140px" }}>
-                  Version
-                </div>
+                <span className="alg-name">Name</span>
+                <span className="alg-description">Description</span>
+                <span className="alg-version">Version</span>
               </li>
               {renderAlgs()}
             </ul>
