@@ -1,13 +1,56 @@
-.alg-name {
-    width: 30%;
+.alg-list-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.alg-list-item.header {
+  font-weight: bold;
+  background-color: #f8f9fa;
+}
+
+.alg-list-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alg-list-cell:last-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.version {
+  margin-right: 10px;
+}
+
+@media (max-width: 768px) {
+  .alg-list-item {
+    grid-template-columns: 1fr;
+    gap: 5px;
   }
-  
-  .alg-description {
-    width: 50%;
+
+  .alg-list-item.header {
+    display: none;
   }
-  
-  .alg-version {
-    width: 20%;
-    display: flex;
-    justify-content: space-between;
+
+  .alg-list-cell::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: inline-block;
+    width: 100px;
   }
+
+  .alg-list-cell:last-child {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .btn-secondary {
+    margin-top: 5px;
+  }
+}

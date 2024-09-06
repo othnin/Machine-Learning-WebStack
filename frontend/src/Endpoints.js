@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { CustomModal } from "./components/Modal_endpoint";
-
+import './App.css';
 /**
  * Represents the Endpoints component. Functional Component.
  * This component displays a list of endpoints and allows the user to open a modal for each endpoint.
@@ -37,14 +37,14 @@ const Endpoints = () => {
     return endpointList.map((endpoint) => (
       <li
         key={endpoint.id}
-        className="list-group-item d-flex justify-content-between align-items-center"
+        className="list-item"
         onClick={() => openModal(endpoint)} // Call openModal on click
         style={{ cursor: "pointer" }} // Change cursor to pointer
       >
-        <span style={{ textDecoration: "underline" }}>{endpoint.name}</span>
-        <span> {endpoint.owner} </span>
+        <span className="item-cell" style={{ textDecoration: "underline" }}>{endpoint.name}</span>
+        <span className="item-cell">  {endpoint.owner} </span>
         <span>
-          <span> {endpoint.created_at} </span>
+          <span className="item-cell" > {endpoint.created_at} </span>
         </span>
       </li>
     ));
@@ -59,23 +59,22 @@ const Endpoints = () => {
           endpoint={activeEndpoint}
         />
       )}
-
-      <h1 className="text-white text-uppercase text-center my-4">
-        Endpoints List
-      </h1>
+      <div className="modal-window">
+      <h1 className="text-grey text-uppercase text-center my-4 modal-title">Endpoints List</h1>
       <div className="row">
         <div className="col-md-12 col-sm-10 mx-auto p-0">
           <div className="card p-3">
             <ul className="list-group list-group-flush border-top-0">
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <span>Name</span>
-                <span>Owner</span>
-                <span>Created at</span>
+              <li className="list-item header">
+                <span className="item-cell">Name</span>
+                <span className="item-cell">Owner</span>
+                <span className="item-cell">Created at</span>
               </li>
               {renderEndpoints()}
             </ul>
           </div>
         </div>
+      </div>
       </div>
     </main>
   );

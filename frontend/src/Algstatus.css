@@ -1,0 +1,37 @@
+.alg-status-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .alg-status-item.header {
+    font-weight: bold;
+    background-color: #f8f9fa;
+  }
+  
+  .alg-status-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  @media (max-width: 768px) {
+    .alg-status-item {
+      grid-template-columns: 1fr;
+      gap: 5px;
+    }
+  
+    .alg-status-item.header {
+      display: none;
+    }
+  
+    .alg-status-cell::before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: inline-block;
+      width: 120px;
+    }
+  }

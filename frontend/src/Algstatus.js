@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Button } from 'reactstrap';
 import { CustomModal } from "./components/Modal_algstatus";
 import axios from "axios";
+import './Algstatus.css';
+import './App.css';
 
 /**
  * Renders the ML Algorithm Status List component.
@@ -48,15 +50,16 @@ const Algorithmstatus = () => {
   /**
    * Renders the list of ML algorithm statuses.
    * @returns {JSX.Element[]} The list of ML algorithm statuses.
+   * <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
    */
   const renderAlgs = () => {
     return algList.map((alg) => (
-      <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
-        <span> {alg.alg_name} </span>
-        <span> {alg.status} </span>
-        <span> {String(alg.active)} </span>
-        <span> {alg.created_at} </span>
-        <span> {alg.created_by} </span>
+      <li key={alg.id} className="alg-status-item">
+        <span className="alg-status-cell">{alg.alg_name}</span>
+        <span className="alg-status-cell">{alg.status}</span>
+        <span className="alg-status-cell">{String(alg.active)}</span>
+        <span className="alg-status-cell">{alg.created_at}</span>
+        <span className="alg-status-cell">{alg.created_by}</span>
       </li>
     ));
   };
@@ -85,31 +88,28 @@ const Algorithmstatus = () => {
       </div>
     );
   };
+  /*
+  *<li className="list-group-item d-flex justify-content-between align-items-center">
+  */
 
   return (
     <main className="container">
-      <h1 className="text-white text-uppercase text-center my-4">ML Algorithm Status List</h1>
-      <div className="row">
-        <div className="col-md-10 col-sm-8 mx-auto p-0">
-          <div className="card p-3">
-            <ul className="list-group list-group-flush border-top-0">
-              <li className="list-group-item d-flex justify-content-between align-items-center"> 
-                <span>Name</span>
-                <span>Status</span>
-                <span>Active</span>
-                <span>Created At</span>
-                <span>Created By</span>
-              </li>
-              {renderAlgs()}
-            </ul>
-          </div>
+      <div className="modal-window">
+        <h1 className="text-grey text-uppercase text-center my-4 modal-title">ML Algorithm Status</h1>
+        <div className="card p-3">
+          <ul className="list-group list-group-flush border-top-0">
+            <li className="list-item header">
+              <span className="alg-status-cell">Name</span>
+              <span className="alg-status-cell">Status</span>
+              <span className="alg-status-cell">Active</span>
+              <span className="alg-status-cell">Created At</span>
+              <span className="alg-status-cell">Created By</span>
+            </li>
+            {renderAlgs()}
+          </ul>
         </div>
-      </div>
-      <div className="row">
-        <div className="col-md-10 col-sm-8 mx-auto p-0">
-          <div className="card p-3">
-            {changeStatusButton()}             
-          </div>
+        <div className="card p-3 text-center mt-3">
+          {changeStatusButton()}             
         </div>
       </div>
     </main>

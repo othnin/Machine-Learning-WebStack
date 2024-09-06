@@ -4,6 +4,7 @@ import ModalAlgFeatures from "./components/Modal_algorithm_features";
 import ModalAddGitHub from "./components/Modal_AddGitHubRepo";
 import axios from "axios";
 import './Algorithms.css';
+import './App.css';
 
 
 /**
@@ -84,10 +85,10 @@ const Algorithms = () => {
     return algList.map((alg) => {
       const truncatedVersion = alg.version.length > 10 ? alg.version.substring(0, 10) + '...' : alg.version;
       return (
-        <li key={alg.id} className="list-group-item d-flex justify-content-between align-items-center">
-          <span className="alg-name">{alg.name}</span>
-          <span className="alg-description">{alg.description}</span>
-          <span className="alg-version">
+        <li key={alg.id} className="alg-list-item">
+          <span className="alg-list-cell">{alg.name}</span>
+          <span className="alg-list-cell">{alg.description}</span>
+          <span className="alg-list-cell">
             <span>{truncatedVersion}</span>
             <Button className="btn btn-secondary mr-2" onClick={() => viewAlg(alg)}>
               View
@@ -99,17 +100,16 @@ const Algorithms = () => {
   };
   return (
     <main className="container">
-      <h1 className="text-white text-uppercase text-center my-4">
-        ML Algorithm List
-      </h1>
+     <div className="modal-window"> 
+    <h1 className="text-grey text-uppercase text-center my-4 modal-title">ML Algorithm List</h1>
       <div className="row">
         <div className="col-md-12 col-sm-10 mx-auto p-0">
           <div className="card p-3">
             <ul className="list-group list-group-flush border-top-0">
-              <li className="list-group-item d-flex justify-content-between align-items-center">
-                <span className="alg-name">Name</span>
-                <span className="alg-description">Description</span>
-                <span className="alg-version">Version</span>
+              <li className="alg-list-item header">
+                <span className="alg-list-cell">Name</span>
+                <span className="alg-list-cell">Description</span>
+                <span className="alg-list-cell">Version</span>
               </li>
               {renderAlgs()}
             </ul>
@@ -124,6 +124,7 @@ const Algorithms = () => {
             </button>
           </div>
         </div>
+      </div>
       </div>
       {modalAlgFeatures ? (
         <ModalAlgFeatures activeAlg={activeAlg} toggle={toggleAlgFeatures} />

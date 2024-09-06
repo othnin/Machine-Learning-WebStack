@@ -1,5 +1,4 @@
-import './App.css';
-import {Home} from './Home';
+import Serverwidgets from './Serverwidgets';
 import Algorithms from './Algorithms';
 import Endpoints from "./Endpoints";
 import Algorithmstatus from './Algstatus';
@@ -17,8 +16,8 @@ function App() {
       <nav className="navbar navbar-expand-sm bg-light navbar-dark">
         <ul className="navbar-nav w-100 justify-content-between">
         <li className="nav-item">
-          <NavLink className="btn btn-light btn-outline-primary" to="/home">
-            Home
+          <NavLink className="btn btn-light btn-outline-primary" to="/ServerWidgets">
+            Server Widgets
           </NavLink>
         </li>
         <li className="nav-item">
@@ -40,7 +39,7 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path='/home' element={<Home/>}/>
+        <Route path='/serverwidgets' element={<Serverwidgets/>}/>
         <Route path='/algorithms' element={<Algorithms/>}/>
         <Route path='/endpoints' element={<Endpoints/>}/>
         <Route path='/algstatus' element={<Algorithmstatus/>}/>

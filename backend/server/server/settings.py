@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-jo11k3^58-0q4n!o6fm5t*nn3ov6yuknzgpevwn53g@#-esufc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','localhost', 'wsgiserver']
+ALLOWED_HOSTS = ['0.0.0.0','localhost', '192.168.1.75']
 
 
 # Application definition
@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'apps.endpoints',
-    'apps.ml'
+    'apps.ml',
+    'apps.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -139,5 +140,5 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+
 
