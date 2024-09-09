@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import GridLayout from 'react-grid-layout';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from "axios";
 import './WidgetStyles.css'; 
 import './App.css';
 
 
 const WidgetNVIDIAInfo = () => {
-  const [nvidiaInfo, setNvidiaInfo] = useState(0);
+  const [nvidiaInfo, setNvidiaInfo] = useState('');
 
   useEffect(() => {
     axios.get('/api/v1/widget_get_nvidia_info')
@@ -19,12 +18,13 @@ const WidgetNVIDIAInfo = () => {
   }, []);
 
   return (
-    <div className="modal-window widget-sysinfo drag-handle">
-      <h3 className="modal-title">NVIDIA SMI Information</h3>
-      <p>{nvidiaInfo}</p>
-    </div>
+    <>
+      <h3 className="widget-title">NVIDIA SMI Information</h3>
+      <div className="widget-content">
+        <p>{nvidiaInfo}</p>
+      </div>
+    </>
   );
-
 }
 
 
@@ -50,23 +50,27 @@ const WidgetCPU = () => {
   }, []);
 
   return (
-    <div className="modal-window widget-cpu drag-handle">
-      <h3 className="modal-title">Performance Meters</h3>
-      <div className="performance-meter">
-        <label>CPU Usage</label>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{width: `${CPUpercent}%`}}></div>
+    <>
+      <h3 className="widget-title">Performance Meters</h3>
+      <div className="widget-content">
+        <div className="performance-meter">
+          <label>CPU Usage</label>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{width: `${CPUpercent}%`}}></div>
+          </div>
+          <span className="progress-text">{CPUpercent}%</span>
         </div>
-        <span className="progress-text">{CPUpercent}%</span>
-      </div>
-      <div className="performance-meter">
-        <label>GPU Usage</label>
-        <div className="progress-bar">
-          <div className="progress-fill" style={{width: `${GPUpercent}%`}}></div>
+        <div className="performance-meter">
+          <label>GPU Usage</label>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{width: `${GPUpercent}%`}}></div>
+          </div>
+          <span className="progress-text">
+            {GPUpercent === 'No GPU found' ? GPUpercent : `${GPUpercent}%`}
+          </span>
         </div>
-        {GPUpercent === 'No GPU found' ? GPUpercent : `${GPUpercent}%`}
       </div>
-    </div>
+    </>
   );
 };
 
@@ -89,58 +93,114 @@ const WidgetSysInfo = () => {
   }, []);
 
   return (
-    <div className="modal-window widget-sysinfo drag-handle">
-      <h3 className="modal-title">System Information</h3>
-      <div className="info-section">
-        <h4>Operating System</h4>
-        <p>{sysInfo.os_output}</p>
+    <>
+      <h3 className="widget-title">System Information</h3>
+      <div className="widget-content">
+        <div className="info-section">
+          <h4>Operating System</h4>
+          <p>{sysInfo.os_output}</p>
+        </div>
+        <div className="info-section">
+          <h4>RAM</h4>
+          <p>{sysInfo.ram_output}</p>
+        </div>
+        <div className="info-section">
+          <h4>Disk</h4>
+          <p>{sysInfo.disk_output}</p>
+        </div>
+        <div className="info-section">
+          <h4>GPU</h4>
+          <p>{sysInfo.gpu_output}</p>
+        </div>
       </div>
-      <div className="info-section">
-        <h4>RAM</h4>
-        <p>{sysInfo.ram_output}</p>
-      </div>
-      <div className="info-section">
-        <h4>Disk</h4>
-        <p>{sysInfo.disk_output}</p>
-      </div>
-      <div className="info-section">
-        <h4>GPU</h4>
-        <p>{sysInfo.gpu_output}</p>
-      </div>
-    </div>
+    </>
   );
 };
 
 const Serverwidgets = () => {
-  const [layout, setLayout] = useState([]);
+  const [widgets, setWidgets] = useState([]);
+  const draggedWidget = useRef(null);
+  const dragOffset = useRef({ x: 0, y: 0 });
+  const containerRef = useRef(null);
 
   const addWidget = (widgetType) => {
-    const newWidgetId = `widget${layout.length + 1}`;
-    let newWidget;
+    const newWidget = {
+      id: `widget${widgets.length + 1}`,
+      type: widgetType,
+      x: (widgets.length * 20) % (window.innerWidth - 320), // Stagger horizontally
+      y: (widgets.length * 20) % (window.innerHeight - 420), // Stagger vertically
+    };
 
-    if (widgetType === 'CPU') {
-      newWidget = { i: newWidgetId, x: 0, y: Infinity, w: 3, h: 2, component: WidgetCPU };
-    } else if (widgetType === 'SysInfo') {
-      newWidget = { i: newWidgetId, x: 3, y: Infinity, w: 5, h: 4, component: WidgetSysInfo };
-    }
-    else if (widgetType === 'NVIDIAinfo') {
-      newWidget = { i: newWidgetId, x: 6, y: Infinity, w: 5, h: 4, component: WidgetNVIDIAInfo };
-    }
-
-
-    
-
-    if (newWidget) {
-      setLayout([...layout, newWidget]);
-    }
+    setWidgets([...widgets, newWidget]);
   };
 
-  const onLayoutChange = (newLayout) => {
-    setLayout((prevLayout) =>
-      newLayout.map((item) => {
-        const existingItem = prevLayout.find((l) => l.i === item.i);
-        return { ...existingItem, ...item };
-      })
+  const onDragStart = useCallback((e, widget) => {
+    if (!containerRef.current) return;
+    
+    draggedWidget.current = widget;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    
+    dragOffset.current = {
+      x: e.clientX - containerRect.left - widget.x,
+      y: e.clientY - containerRect.top - widget.y,
+    };
+
+    // Prevent text selection during drag
+    e.preventDefault();
+  }, []);
+
+  const onDrag = useCallback((e) => {
+    if (draggedWidget.current && containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      let newX = e.clientX - containerRect.left - dragOffset.current.x;
+      let newY = e.clientY - containerRect.top - dragOffset.current.y;
+  
+      // Constrain the widget within the container
+      newX = Math.max(0, Math.min(newX, containerRect.width - 400));
+      newY = Math.max(0, Math.min(newY, containerRect.height - 600));
+  
+      setWidgets(widgets.map(w => 
+        w.id === draggedWidget.current.id 
+          ? { ...w, x: newX, y: newY } 
+          : w
+      ));
+    }
+  }, [widgets]);
+
+  const onDragEnd = useCallback(() => {
+    draggedWidget.current = null;
+  }, []);
+
+  const renderWidget = (widget) => {
+    let WidgetComponent;
+    switch (widget.type) {
+      case 'CPU':
+        WidgetComponent = WidgetCPU;
+        break;
+      case 'SysInfo':
+        WidgetComponent = WidgetSysInfo;
+        break;
+      case 'NVIDIAinfo':
+        WidgetComponent = WidgetNVIDIAInfo;
+        break;
+      default:
+        return null;
+    }
+
+    return (
+      <div
+        key={widget.id}
+        className="widget-container"
+        style={{
+          left: `${widget.x}px`,
+          top: `${widget.y}px`,
+        }}
+      >
+        <div className="widget-header">
+          <div className="drag-handle" onMouseDown={(e) => onDragStart(e, widget)}>::</div>
+        </div>
+        <WidgetComponent />
+      </div>
     );
   };
 
@@ -156,25 +216,16 @@ const Serverwidgets = () => {
         <option value="SysInfo">System Information</option>
         <option value="NVIDIAinfo">NVIDIA SMI Info</option>
       </select>
-      <GridLayout
-        className="layout"
-        layout={layout}
-        cols={12}
-        rowHeight={30}
-        width={1200}
-        onLayoutChange={onLayoutChange}
+      <div 
+        ref={containerRef}
+        className="widgets-container"
+        onMouseMove={onDrag}
+        onMouseUp={onDragEnd}
+        onMouseLeave={onDragEnd}
       >
-        {layout.map((item) => {
-          const WidgetComponent = item.component;
-          return (
-            <div key={item.i} data-grid={item}>
-              <WidgetComponent />
-            </div>
-          );
-        })}
-      </GridLayout>
+        {widgets.map(renderWidget)}
+      </div>
     </div>
   );
 };
-
 export default Serverwidgets;
