@@ -119,19 +119,23 @@ const WidgetSysInfo = () => {
 
 const Serverwidgets = () => {
   const [widgets, setWidgets] = useState([]);
-  const draggedWidget = useRef(null);
+  const draggedWidget = useRef(null);  // data types - id, x, y
   const dragOffset = useRef({ x: 0, y: 0 });
-  const containerRef = useRef(null);
+  const containerRef = useRef(null);  // data type - DOM element, container for widgets
 
   const addWidget = (widgetType) => {
     const newWidget = {
       id: `widget${widgets.length + 1}`,
       type: widgetType,
-      x: (widgets.length * 20) % (window.innerWidth - 320), // Stagger horizontally
-      y: (widgets.length * 20) % (window.innerHeight - 420), // Stagger vertically
+      x: (widgets.length * 20) % (window.innerWidth - 400), // Stagger horizontally was 320
+      y: (widgets.length * 20) % (window.innerHeight - 600), // Stagger vertically was 420
     };
 
     setWidgets([...widgets, newWidget]);
+  };
+
+  const removeWidget = (widgetId) => {
+    setWidgets(widgets.filter(widget => widget.id !== widgetId));
   };
 
   const onDragStart = useCallback((e, widget) => {
@@ -198,6 +202,7 @@ const Serverwidgets = () => {
       >
         <div className="widget-header">
           <div className="drag-handle" onMouseDown={(e) => onDragStart(e, widget)}>::</div>
+          <button className="close-button" onClick={() => removeWidget(widget.id)}>×</button>
         </div>
         <WidgetComponent />
       </div>
