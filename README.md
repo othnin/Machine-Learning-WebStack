@@ -49,7 +49,7 @@ in backend/server/apps/ml/<projectname>. The example we have loaded is income_cl
 
 ## Screenshots and Explanations:
 
-![alt text](docs/ML_sever_widgets.png)
+![alt text](docs/ML_server_widgets.png)
 This page has a drop down where different widgets that show the status of ther server can be displayed. Unfortunaetly, my server NVIDIA card driver situation has gone awry so the GPU data is lacking. 
 
 
